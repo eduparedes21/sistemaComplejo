@@ -5,20 +5,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Clase que representa un Usuario en el sistema.
- * Existen dos roles principales:
- * - administrador
- * - personal
+ * Clase que representa un Usuario en el sistema. Existen dos roles principales:
+ * - administrador - personal
  */
-
 @Entity
 @Getter
 @Setter
 @Table(name = "usuarios") // Nombre exacto de la tabla en la base de datos
 public class Usuario {
-     @Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_usuario")
+    private Long idUsuario;
 
     @Column(nullable = false, length = 50)
     private String nombre;
