@@ -26,7 +26,7 @@ public class Usuario {
     private String email;
 
     @Column(nullable = false, length = 255)
-    private String contraseña;
+    private String password;
 
     @Column(nullable = false, length = 20)
     private String rol; // Puede ser 'administrador' o 'personal'
@@ -40,13 +40,13 @@ public class Usuario {
      *
      * @param nombre Nombre del usuario
      * @param email Correo electrónico del usuario
-     * @param contraseña Contraseña encriptada
+     * @param password Contraseña encriptada
      * @param rol Rol del usuario (administrador/personal)
      */
-    public Usuario(String nombre, String email, String contraseña, String rol) {
+    public Usuario(String nombre, String email, String password, String rol) {
         this.nombre = nombre;
         this.email = email;
-        this.contraseña = contraseña;
+        this.password = password;
         this.rol = rol;
     }
 }

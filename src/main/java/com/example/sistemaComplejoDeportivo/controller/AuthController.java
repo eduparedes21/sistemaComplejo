@@ -15,10 +15,9 @@ public class AuthController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // Endpoint para iniciar sesión
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String contraseña) {
-        Optional<Usuario> usuario = usuarioService.autenticarUsuario(email, contraseña);
+    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password) {
+        Optional<Usuario> usuario = usuarioService.autenticarUsuario(email, password);
         if (usuario.isPresent()) {
             return ResponseEntity.ok("Inicio de sesión exitoso, rol: " + usuario.get().getRol());
         } else {
@@ -26,14 +25,12 @@ public class AuthController {
         }
     }
 
-    // Endpoint para que el administrador registre usuarios tipo "personal"
     @PostMapping("/admin/registrarPersonal")
     public ResponseEntity<?> registrarPersonal(
             @RequestParam String nombre,
             @RequestParam String email,
-            @RequestParam String contraseña) {
-        
-        Usuario nuevoUsuario = usuarioService.crearUsuarioPersonal(nombre, email, contraseña);
+            @RequestParam String password) {
+        Usuario nuevoUsuario = usuarioService.crearUsuarioPersonal(nombre, email, password);
         return ResponseEntity.ok("Usuario personal creado: " + nuevoUsuario.getEmail());
     }
 }

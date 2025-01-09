@@ -17,18 +17,18 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Autenticación de usuario
-    public Optional<Usuario> autenticarUsuario(String email, String contraseña) {
+    // 🔑 **Autenticación de usuario**
+    public Optional<Usuario> autenticarUsuario(String email, String password) {
         return usuarioRepository.findByEmail(email)
-                .filter(usuario -> passwordEncoder.matches(contraseña, usuario.getContraseña()));
+                .filter(usuario -> passwordEncoder.matches(password, usuario.getPassword()));
     }
 
-    // Crear usuario (por el administrador)
-    public Usuario crearUsuarioPersonal(String nombre, String email, String contraseña) {
+    // 🛠️ **Crear usuario (por el administrador)**
+    public Usuario crearUsuarioPersonal(String nombre, String email, String password) {
         Usuario usuario = new Usuario();
         usuario.setNombre(nombre);
         usuario.setEmail(email);
-        usuario.setContraseña(passwordEncoder.encode(contraseña));
+        usuario.setPassword(passwordEncoder.encode(password)); // 🔐 Se cifra la contraseña
         usuario.setRol("personal");
         return usuarioRepository.save(usuario);
     }
