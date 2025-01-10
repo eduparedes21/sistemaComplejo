@@ -30,17 +30,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desactiva CSRF para APIs REST
-            .authorizeHttpRequests(auth -> auth
+                .csrf(csrf -> csrf.disable()) // Desactiva CSRF para APIs REST
+                .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/login").permitAll() // Permitir acceso público al login
                 .requestMatchers("/api/auth/admin/**").hasAuthority("administrador") // Restringir admin
+                .requestMatchers("/api/inventario/eliminar/**").hasAuthority("administrador")
+                .requestMatchers("/api/inventario/**").hasAnyAuthority("administrador", "personal")
                 .anyRequest().authenticated() // El resto requiere autenticación
-            )
-            .sessionManagement(session -> session
+                )
+                .sessionManagement(session -> session
                 .sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS)
-            ) // Política de sesión Stateless (sin mantener estado de sesión)
-            .authenticationProvider(authenticationProvider()) // Usar autenticación personalizada
-            .httpBasic(); // Mantener HTTP Basic para otros endpoints si es necesario
+                ) // Política de sesión Stateless (sin mantener estado de sesión)
+                .authenticationProvider(authenticationProvider()) // Usar autenticación personalizada
+                .httpBasic(); // Mantener HTTP Basic para otros endpoints si es necesario
 
         return http.build();
     }
@@ -57,10 +59,10 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         return email -> usuarioRepository.findByEmail(email)
                 .map(usuario -> User.builder()
-                        .username(usuario.getEmail())
-                        .password(usuario.getPassword()) // Password encriptada
-                        .authorities(usuario.getRol()) // Autoridad basada en rol
-                        .build())
+                .username(usuario.getEmail())
+                .password(usuario.getPassword()) // Password encriptada
+                .authorities(usuario.getRol()) // Autoridad basada en rol
+                .build())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 }
