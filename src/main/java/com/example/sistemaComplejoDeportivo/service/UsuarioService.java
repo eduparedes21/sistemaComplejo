@@ -32,4 +32,9 @@ public class UsuarioService {
         usuario.setRol("personal");
         return usuarioRepository.save(usuario);
     }
+
+    public Optional<Usuario> obtenerPorEmail(String email) {
+        return usuarioRepository.findByEmail(email);
+    }
+
 }

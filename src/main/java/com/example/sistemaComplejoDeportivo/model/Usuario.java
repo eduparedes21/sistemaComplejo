@@ -1,8 +1,10 @@
 package com.example.sistemaComplejoDeportivo.model;
 
 import jakarta.persistence.*;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Clase que representa un Usuario en el sistema. Existen dos roles principales:
@@ -49,4 +51,10 @@ public class Usuario {
         this.password = password;
         this.rol = rol;
     }
+
+    public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+
+        Optional<Usuario> findByEmail(String email);
+    }
+
 }
