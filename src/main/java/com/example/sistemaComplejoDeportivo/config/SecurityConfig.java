@@ -30,20 +30,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Desactiva CSRF para APIs REST
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login").permitAll() // Permitir acceso público al login
-                .requestMatchers("/api/auth/admin/**").hasAuthority("administrador") // Restringir admin
-                .requestMatchers("/api/inventario/eliminar/**").hasAuthority("administrador")
-                .requestMatchers("/api/inventario/**").hasAnyAuthority("administrador", "personal")
-                .anyRequest().authenticated() // El resto requiere autenticación
+                .requestMatchers("/api/auth/login", "/css/**", "/js/**").permitAll() // Permitir login y recursos estáticos
+                .requestMatchers("/api/auth/**").permitAll() // APIs REST públicas
+                .anyRequest().authenticated() // Requiere autenticación para el resto
+                )
+                .formLogin(login -> login
+                .loginPage("/api/auth/login") // Página para mostrar el formulario
+                .defaultSuccessUrl("/dashboard", true) // Redirigir tras login exitoso
+                .failureUrl("/api/auth/login?error=true") // Redirigir tras error de login
+                .permitAll()
+                )
+                .logout(logout -> logout
+                .logoutUrl("/logout") // Ruta para cerrar sesión
+                .logoutSuccessUrl("/api/auth/login") // Redirigir tras logout
                 )
                 .sessionManagement(session -> session
-                .sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS)
-                ) // Política de sesión Stateless (sin mantener estado de sesión)
-                .authenticationProvider(authenticationProvider()) // Usar autenticación personalizada
-                .httpBasic(); // Mantener HTTP Basic para otros endpoints si es necesario
-
+                .maximumSessions(1) // Solo permitir una sesión por usuario
+                .maxSessionsPreventsLogin(false) // Permitir el nuevo login si se exceden las sesiones
+                );
         return http.build();
     }
 

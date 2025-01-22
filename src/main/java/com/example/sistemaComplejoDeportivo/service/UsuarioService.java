@@ -2,6 +2,7 @@ package com.example.sistemaComplejoDeportivo.service;
 
 import com.example.sistemaComplejoDeportivo.model.Usuario;
 import com.example.sistemaComplejoDeportivo.repository.UsuarioRepository;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,4 +38,7 @@ public class UsuarioService {
         return usuarioRepository.findByEmail(email);
     }
 
+    public List<Usuario> listarUsuarios() {
+        return usuarioRepository.findAll();
+    }
 }
