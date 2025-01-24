@@ -37,9 +37,9 @@ public class SecurityConfig {
                 .anyRequest().authenticated() // Requiere autenticación para el resto
                 )
                 .formLogin(login -> login
-                .loginPage("/api/auth/login") // Página para mostrar el formulario
+                .loginPage("/api/auth/login") // Ruta para mostrar el formulario de login
                 .defaultSuccessUrl("/dashboard", true) // Redirigir tras login exitoso
-                .failureUrl("/api/auth/login?error=true") // Redirigir tras error de login
+                .failureUrl("/api/auth/login?error=true") // Redirigir tras login fallido
                 .permitAll()
                 )
                 .logout(logout -> logout

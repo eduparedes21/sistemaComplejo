@@ -36,4 +36,10 @@ public class AuthController {
         Usuario nuevoUsuario = usuarioService.crearUsuarioPersonal(nombre, email, password);
         return ResponseEntity.ok("Usuario personal creado: " + nuevoUsuario.getEmail());
     }
+
+    @PostMapping("/login")
+    public String processLogin() {
+        return "redirect:/dashboard";
+    }
+
 }

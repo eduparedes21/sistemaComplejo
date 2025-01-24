@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class DashboardController {
 
-    @GetMapping("/")
-    public String dashboard() {
-        return "dashboard"; // Renderiza templates/dashboard.html
+    @GetMapping("/dashboard")
+    public String showDashboard() {
+        return "dashboard"; // Thymeleaf buscará dashboard.html en /templates
     }
 }
