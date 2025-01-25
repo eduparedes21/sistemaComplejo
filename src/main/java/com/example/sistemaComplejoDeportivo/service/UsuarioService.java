@@ -8,6 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 
 @Service
 public class UsuarioService {
@@ -40,5 +42,18 @@ public class UsuarioService {
 
     public List<Usuario> listarUsuarios() {
         return usuarioRepository.findAll();
+    }
+
+    public Usuario getAuthenticatedUser() {
+        // Obtén el contexto de autenticación actual
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new RuntimeException("No hay un usuario autenticado");
+        }
+        // Obtén el email del usuario autenticado
+        String email = authentication.getName();
+        // Busca el usuario en la base de datos
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 }
