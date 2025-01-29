@@ -33,7 +33,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/login", "/css/**", "/js/**").permitAll() // Permitir login y recursos estáticos
+                .requestMatchers("/api/caja/**").authenticated()
                 .requestMatchers("/api/auth/**").permitAll() // APIs REST públicas
+
                 .anyRequest().authenticated() // Requiere autenticación para el resto
                 )
                 .formLogin(login -> login

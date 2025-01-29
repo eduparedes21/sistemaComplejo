@@ -1,114 +1,118 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Dashboard</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/styles.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            overflow-x: hidden;
-        }
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            background-color: #343a40;
-            color: #fff;
-            position: fixed;
-            left: 0;
-            top: 0;
-            overflow-y: auto;
-            transition: transform 0.3s ease-in-out;
-            z-index: 1000;
-        }
-        .sidebar.collapsed {
-            transform: translateX(-250px);
-        }
-        .sidebar .nav-link {
-            color: #ccc;
-        }
-        .sidebar .nav-link:hover {
-            color: #fff;
-        }
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            transition: margin-left 0.3s ease-in-out;
-        }
-        .main-content.collapsed {
-            margin-left: 0;
-        }
-        .toggle-btn {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1100;
-        }
-        .user-info {
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid #495057;
-        }
-        .user-info h5, .user-info p {
-            margin: 0;
-        }
-    </style>
-</head>
-<body>
-    <!-- Botón para replegar menú -->
-    <button class="btn btn-dark toggle-btn" id="toggleSidebar">
-        ☰
-    </button>
+    <head>
+        <title>Dashboard</title>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/styles.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                background-color: #f8f9fa;
+                overflow-x: hidden;
+            }
+            .sidebar {
+                height: 100vh;
+                width: 250px;
+                background-color: #343a40;
+                color: #fff;
+                position: fixed;
+                left: 0;
+                top: 0;
+                overflow-y: auto;
+                transition: transform 0.3s ease-in-out;
+                z-index: 1000;
+            }
+            .sidebar.collapsed {
+                transform: translateX(-250px);
+            }
+            .sidebar .nav-link {
+                color: #ccc;
+            }
+            .sidebar .nav-link:hover {
+                color: #fff;
+            }
+            .main-content {
+                margin-left: 250px;
+                padding: 20px;
+                transition: margin-left 0.3s ease-in-out;
+            }
+            .main-content.collapsed {
+                margin-left: 0;
+            }
+            .toggle-btn {
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1100;
+            }
+            .user-info {
+                padding: 15px;
+                text-align: center;
+                border-bottom: 1px solid #495057;
+            }
+            .user-info h5, .user-info p {
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Botón para replegar menú -->
+        <button class="btn btn-dark toggle-btn" id="toggleSidebar">
+            ☰
+        </button>
 
-    <!-- Menú lateral -->
-    <div class="sidebar" id="sidebar">
-        <div class="user-info">
-            <h5 th:text="${usuario.nombre}">Nombre del Usuario</h5>
-            <p th:text="'Rol: ' + ${usuario.rol}">Rol: Administrador</p>
+        <!-- Menú lateral -->
+        <div class="sidebar" id="sidebar">
+            <div class="user-info">
+                <h5 th:text="${usuario.nombre}">Nombre del Usuario</h5>
+                <p th:text="'Rol: ' + ${usuario.rol}">Rol: Administrador</p>
+            </div>
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item">
+                    <a th:href="@{/usuarios}" class="nav-link">Gestión de Usuarios</a>
+                </li>
+                <li class="nav-item">
+                    <a th:href="@{/reservas}" class="nav-link">Gestión de Reservas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/caja}">Módulo de Caja</a>
+                </li>
+
+                <li class="nav-item">
+                    <a th:href="@{/reportes}" class="nav-link">Reportes Financieros</a>
+                </li>
+                <li class="nav-item">
+                    <a th:href="@{/ingresos}" class="nav-link">Gestión de Ingresos</a>
+                </li>
+                <li class="nav-item">
+                    <a th:href="@{/egresos}" class="nav-link">Gestión de Egresos</a>
+                </li>
+                <li class="nav-item">
+                    <a th:href="@{/logout}" class="nav-link">Cerrar Sesión</a>
+                </li>
+            </ul>
         </div>
-        <ul class="nav flex-column mt-3">
-            <li class="nav-item">
-                <a th:href="@{/usuarios}" class="nav-link">Gestión de Usuarios</a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/reservas}" class="nav-link">Gestión de Reservas</a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/reportes}" class="nav-link">Reportes Financieros</a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/ingresos}" class="nav-link">Gestión de Ingresos</a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/egresos}" class="nav-link">Gestión de Egresos</a>
-            </li>
-            <li class="nav-item">
-                <a th:href="@{/logout}" class="nav-link">Cerrar Sesión</a>
-            </li>
-        </ul>
-    </div>
 
-    <!-- Contenido principal -->
-    <div class="main-content" id="mainContent">
-        <div class="container mt-4">
-            <h1 class="text-center">Bienvenido al Sistema Deportivo</h1>
-            <p class="text-center">Seleccione un módulo del menú para comenzar.</p>
+        <!-- Contenido principal -->
+        <div class="main-content" id="mainContent">
+            <div class="container mt-4">
+                <h1 class="text-center">Bienvenido al Sistema Deportivo</h1>
+                <p class="text-center">Seleccione un módulo del menú para comenzar.</p>
+            </div>
         </div>
-    </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-        const toggleBtn = document.getElementById('toggleSidebar');
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleBtn = document.getElementById('toggleSidebar');
 
-        toggleBtn.addEventListener('click', () => {
+            toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('collapsed');
-        });
-    </script>
-</body>
+            });
+        </script>
+    </body>
 </html>
