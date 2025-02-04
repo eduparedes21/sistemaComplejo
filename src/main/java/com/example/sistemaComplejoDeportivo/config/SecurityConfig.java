@@ -34,6 +34,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/login", "/css/**", "/js/**").permitAll() // Permitir login y recursos estáticos
                 .requestMatchers("/api/caja/**").authenticated()
+                .requestMatchers("/caja/reportes").permitAll() // Permitir acceso a todos
+                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll() // APIs REST públicas
 
                 .anyRequest().authenticated() // Requiere autenticación para el resto

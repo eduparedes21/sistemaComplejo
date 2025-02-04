@@ -1,6 +1,7 @@
 package com.example.sistemaComplejoDeportivo.service;
 
 import com.example.sistemaComplejoDeportivo.model.MovimientoCaja;
+import com.example.sistemaComplejoDeportivo.model.TipoMovimiento;
 import com.example.sistemaComplejoDeportivo.repository.MovimientoCajaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,4 +31,13 @@ public class MovimientoCajaService {
         List<MovimientoCaja> movimientos = obtenerMovimientosPorFecha(inicio, fin);
         return movimientos.stream().mapToDouble(mov -> mov.getMonto()).sum();
     }
+
+    public List<MovimientoCaja> obtenerMovimientosPorTipoYFecha(TipoMovimiento tipo, LocalDateTime inicio, LocalDateTime fin) {
+        return movimientoCajaRepository.findByTipoAndFechaHoraBetween(tipo, inicio, fin);
+    }
+
+    public List<MovimientoCaja> obtenerMovimientosPorCategoriaYFecha(String categoria, LocalDateTime inicio, LocalDateTime fin) {
+        return movimientoCajaRepository.findByCategoriaAndFechaHoraBetween(categoria, inicio, fin);
+    }
+
 }

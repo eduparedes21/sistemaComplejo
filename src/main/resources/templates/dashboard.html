@@ -76,9 +76,21 @@
                     <a th:href="@{/reservas}" class="nav-link">Gestión de Reservas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/caja}">Módulo de Caja</a>
+                    <!-- Menú desplegable del Módulo de Caja -->
+                    <a class="nav-link" data-bs-toggle="collapse" href="#moduloCaja" role="button" aria-expanded="false" aria-controls="moduloCaja">
+                        Módulo de Caja
+                    </a>
+                    <div class="collapse" id="moduloCaja">
+                        <ul class="list-unstyled ms-3">
+                            <li>
+                                <a class="nav-link" th:href="@{/caja}">Gestión de Caja</a>
+                            </li>
+                            <li>
+                                <a class="nav-link" th:href="@{/caja/reportes}">Reportes de Movimientos</a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
-
                 <li class="nav-item">
                     <a th:href="@{/reportes}" class="nav-link">Reportes Financieros</a>
                 </li>
@@ -110,8 +122,8 @@
             const toggleBtn = document.getElementById('toggleSidebar');
 
             toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('collapsed');
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('collapsed');
             });
         </script>
     </body>

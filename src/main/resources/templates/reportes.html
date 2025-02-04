@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Reportes de Caja</title>
+        <link rel="stylesheet" href="/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container mt-5">
+            <h1>Reportes de Caja</h1>
+            <form action="#" method="get" id="formReporte">
+                <div class="mb-3">
+                    <label for="inicio" class="form-label">Fecha Inicio:</label>
+                    <input type="datetime-local" id="inicio" name="inicio" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="fin" class="form-label">Fecha Fin:</label>
+                    <input type="datetime-local" id="fin" name="fin" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="tipo" class="form-label">Tipo:</label>
+                    <select id="tipo" name="tipo" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="INGRESO">Ingreso</option>
+                        <option value="EGRESO">Egreso</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary" id="btnGenerar">Generar Reporte</button>
+            </form>
+
+            <div class="mt-4" id="resultados">
+                <h2>Resultados:</h2>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Categoría</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Monto</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaResultados">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById("btnGenerar").addEventListener("click", async () => {
+                const inicio = document.getElementById("inicio").value;
+                const fin = document.getElementById("fin").value;
+                const tipo = document.getElementById("tipo").value;
+
+                if (!inicio || !fin) {
+                    alert("Debe seleccionar una fecha de inicio y una fecha de fin.");
+                    return;
+                }
+
+                let url = `/api/caja/reportes/movimientos?inicio=${encodeURIComponent(inicio)}&fin=${encodeURIComponent(fin)}`;
+
+                if (tipo && tipo !== "") {
+                    url = `/api/caja/reportes/movimientos/tipo?inicio=${encodeURIComponent(inicio)}&fin=${encodeURIComponent(fin)}&tipo=${encodeURIComponent(tipo)}`;
+                }
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    alert("Ocurrió un error al obtener los reportes. Verifique los filtros.");
+                    return;
+                }
+
+                const data = await response.json();
+
+                const tabla = document.getElementById("tablaResultados");
+                tabla.innerHTML = data.map(mov => `
+                <tr>
+                    <td>${mov.fechaHora}</td>
+                    <td>${mov.categoria}</td>
+                    <td>${mov.tipo}</td>
+                    <td>${mov.descripcion}</td>
+                    <td>${mov.monto}</td>
+                    <td>${mov.usuario.nombre}</td>
+                </tr>
+            `).join("");
+            });
+        </script>
+    </body>
+</html>
