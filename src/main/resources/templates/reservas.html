@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Gestión de Reservas</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container mt-4">
+            <h2 class="mb-3">Gestión de Reservas</h2>
+
+            <!-- 📌 Mensajes de éxito o error -->
+            <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+            <!-- 🔹 Formulario para crear reserva -->
+            <div class="card p-4 mb-4">
+                <h4>Crear Nueva Reserva</h4>
+                <form action="/api/reservas" method="post">
+                    <div class="mb-3">
+                        <label for="fechaReserva">Fecha de Reserva:</label>
+                        <input type="date" id="fechaReserva" name="fechaReserva" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="horaInicio">Hora Inicio:</label>
+                        <input type="time" id="horaInicio" name="horaInicio" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="horaFin">Hora Fin:</label>
+                        <input type="time" id="horaFin" name="horaFin" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcion">Descripción:</label>
+                        <textarea id="descripcion" name="descripcion" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="montoTotal">Monto Total:</label>
+                        <input type="number" id="montoTotal" name="montoTotal" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Reserva</button>
+                </form>
+            </div>
+
+            <!-- 🔹 Lista de reservas existentes -->
+            <h3 class="mb-3">Reservas Registradas</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Hora Inicio</th>
+                        <th>Hora Fin</th>
+                        <th>Monto</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="reserva : ${reservas}">
+                        <td th:text="${reserva.idReserva}"></td>
+                        <td th:text="${reserva.fechaReserva}"></td>
+                        <td th:text="${reserva.horaInicio}"></td>
+                        <td th:text="${reserva.horaFin}"></td>
+                        <td th:text="${reserva.montoTotal}"></td>
+                        <td th:text="${reserva.descripcion}"></td>
+                        <td>
+                            <a th:href="@{/reservas/editar/{id}(id=${reserva.idReserva})}" class="btn btn-warning btn-sm">Editar</a>
+                            <a th:href="@{/reservas/eliminar/{id}(id=${reserva.idReserva})}" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
+

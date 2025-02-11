@@ -4,6 +4,7 @@ import com.example.sistemaComplejoDeportivo.model.Usuario;
 import com.example.sistemaComplejoDeportivo.service.UsuarioService;
 import com.example.sistemaComplejoDeportivo.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +34,18 @@ public class AuthController {
             @RequestParam String nombre,
             @RequestParam String email,
             @RequestParam String password) {
-        Usuario nuevoUsuario = usuarioService.crearUsuarioPersonal(nombre, email, password);
-        return ResponseEntity.ok("Usuario personal creado: " + nuevoUsuario.getEmail());
+        try {
+            Usuario usuario = new Usuario();
+            usuario.setNombre(nombre);
+            usuario.setEmail(email);
+            usuario.setPassword(password);
+            usuario.setRol("personal"); // Asegura que tenga un rol válido
+
+            Usuario nuevoUsuario = usuarioService.crearUsuario(usuario);
+            return ResponseEntity.ok("Usuario creado: " + nuevoUsuario.getEmail());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al registrar usuario: " + e.getMessage());
+        }
     }
 
     @PostMapping("/login")

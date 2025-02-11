@@ -42,6 +42,8 @@ public class SecurityConfig {
                 )
                 .formLogin(login -> login
                 .loginPage("/api/auth/login") // Ruta para mostrar el formulario de login
+                .usernameParameter("email") // ← Asegura que email se use como username
+                .passwordParameter("password") // ← Define el campo de la contraseña correctamente
                 .defaultSuccessUrl("/dashboard", true) // Redirigir tras login exitoso
                 .failureUrl("/api/auth/login?error=true") // Redirigir tras login fallido
                 .permitAll()
@@ -70,9 +72,10 @@ public class SecurityConfig {
         return email -> usuarioRepository.findByEmail(email)
                 .map(usuario -> User.builder()
                 .username(usuario.getEmail())
-                .password(usuario.getPassword()) // Password encriptada
-                .authorities(usuario.getRol()) // Autoridad basada en rol
+                .password(usuario.getPassword())
+                .roles(usuario.getRol().equalsIgnoreCase("administrador") ? "ADMIN" : "USER")
                 .build())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
+
 }

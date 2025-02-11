@@ -11,11 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 
-@RestController
+@Controller
 @RequestMapping("/api/reservas")
 public class ReservaController {
 
@@ -26,23 +29,33 @@ public class ReservaController {
     private UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<?> crearReserva(@RequestBody Reserva reserva) {
+    public String crearReserva(@ModelAttribute Reserva reserva, RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
         Optional<Usuario> usuarioOptional = usuarioService.obtenerPorEmail(email);
         if (!usuarioOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autorizado");
+            redirectAttributes.addFlashAttribute("error", "Usuario no autorizado");
+            return "redirect:/reservas";
         }
 
         Usuario usuario = usuarioOptional.get();
         reserva.setUsuario(usuario); // Asociar usuario
+
+        // Validación de datos obligatorios
         if (reserva.getFechaReserva() == null || reserva.getHoraInicio() == null || reserva.getHoraFin() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Fecha y horas son obligatorias");
+            redirectAttributes.addFlashAttribute("error", "Fecha y horas son obligatorias");
+            return "redirect:/reservas";
         }
 
-        Reserva nuevaReserva = reservaService.crearReserva(reserva);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevaReserva);
+        try {
+            reservaService.crearReserva(reserva);
+            redirectAttributes.addFlashAttribute("mensaje", "Reserva registrada con éxito");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ocurrió un error al guardar la reserva. Inténtalo nuevamente.");
+        }
+
+        return "redirect:/reservas";
     }
 
     @GetMapping
@@ -50,42 +63,51 @@ public class ReservaController {
         return ResponseEntity.ok(reservaService.listarReservas());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerReservaPorId(@PathVariable Integer id) {
+    // 📌 Cargar formulario de edición con datos de la reserva
+    @GetMapping("/editar/{id}")
+    public String editarReserva(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Reserva> reserva = reservaService.obtenerReservaPorId(id);
-        return reserva.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        if (reserva.isPresent()) {
+            model.addAttribute("reserva", reserva.get());
+            return "editar-reserva"; // HTML de edición
+        } else {
+            redirectAttributes.addFlashAttribute("error", "La reserva no existe.");
+            return "redirect:/reservas";
+        }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarReserva(@PathVariable Integer id, @RequestBody Reserva reserva) {
-        // Buscar reserva existente
+    // 📌 Actualizar una reserva existente
+    @PostMapping("/actualizar/{id}")
+    public String actualizarReserva(@PathVariable Integer id, @ModelAttribute Reserva reserva, RedirectAttributes redirectAttributes) {
         Optional<Reserva> reservaExistente = reservaService.obtenerReservaPorId(id);
         if (!reservaExistente.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reserva no encontrada");
+            redirectAttributes.addFlashAttribute("error", "No se encontró la reserva.");
+            return "redirect:/reservas";
         }
 
         Reserva reservaDB = reservaExistente.get();
+        reservaDB.setFechaReserva(reserva.getFechaReserva());
+        reservaDB.setHoraInicio(reserva.getHoraInicio());
+        reservaDB.setHoraFin(reserva.getHoraFin());
+        reservaDB.setDescripcion(reserva.getDescripcion());
+        reservaDB.setMontoTotal(reserva.getMontoTotal());
 
-        // Actualizar los campos según los datos enviados
-        reservaDB.setFechaReserva(reserva.getFechaReserva() != null ? reserva.getFechaReserva() : reservaDB.getFechaReserva());
-        reservaDB.setHoraInicio(reserva.getHoraInicio() != null ? reserva.getHoraInicio() : reservaDB.getHoraInicio());
-        reservaDB.setHoraFin(reserva.getHoraFin() != null ? reserva.getHoraFin() : reservaDB.getHoraFin());
-        reservaDB.setDescripcion(reserva.getDescripcion() != null ? reserva.getDescripcion() : reservaDB.getDescripcion());
-        reservaDB.setMontoTotal(reserva.getMontoTotal() != null ? reserva.getMontoTotal() : reservaDB.getMontoTotal());
+        reservaService.actualizarReserva(reservaDB);
+        redirectAttributes.addFlashAttribute("mensaje", "Reserva actualizada con éxito.");
 
-        // Guardar los cambios
-        Reserva reservaActualizada = reservaService.actualizarReserva(reservaDB);
-        return ResponseEntity.ok(reservaActualizada);
+        return "redirect:/reservas"; // Redirige a la lista de reservas
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarReserva(@PathVariable Integer id) {
-        try {
+    // 📌 Eliminar reserva
+    @GetMapping("/eliminar/{id}")
+    public String eliminarReserva(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        if (reservaService.obtenerReservaPorId(id).isPresent()) {
             reservaService.eliminarReserva(id);
-            return ResponseEntity.ok("Reserva eliminada exitosamente");
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            redirectAttributes.addFlashAttribute("mensaje", "Reserva eliminada correctamente.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "No se encontró la reserva.");
         }
+        return "redirect:/reservas";
     }
 
 }

@@ -2,11 +2,10 @@ package com.example.sistemaComplejoDeportivo.service;
 
 import com.example.sistemaComplejoDeportivo.model.Usuario;
 import com.example.sistemaComplejoDeportivo.repository.UsuarioRepository;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import java.util.List;
 import java.util.Optional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
@@ -26,34 +25,76 @@ public class UsuarioService {
                 .filter(usuario -> passwordEncoder.matches(password, usuario.getPassword()));
     }
 
-    // 🛠️ **Crear usuario (por el administrador)**
-    public Usuario crearUsuarioPersonal(String nombre, String email, String password) {
-        Usuario usuario = new Usuario();
-        usuario.setNombre(nombre);
-        usuario.setEmail(email);
-        usuario.setPassword(passwordEncoder.encode(password)); // 🔐 Se cifra la contraseña
-        usuario.setRol("personal");
+    // 🔐 **Método para verificar si el usuario autenticado es ADMIN**
+    public boolean esAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            return false;
+        }
+
+        Optional<Usuario> usuario = usuarioRepository.findByEmail(authentication.getName());
+        return usuario.isPresent() && "administrador".equals(usuario.get().getRol());
+    }
+
+    // 🛠️ **Método para crear un usuario con cualquier rol**
+    public Usuario crearUsuario(Usuario usuario) {
+        if (!esAdmin()) {
+            throw new RuntimeException("No tienes permisos para agregar usuarios.");
+        }
+
+        // Verifica si el email ya está registrado
+        Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(usuario.getEmail());
+        if (usuarioExistente.isPresent()) {
+            throw new RuntimeException("El correo ya está registrado.");
+        }
+
+        // Encripta la contraseña antes de guardar
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+
         return usuarioRepository.save(usuario);
     }
 
+    // 🛠️ **Actualizar un usuario**
+    public Usuario actualizarUsuario(Usuario usuario) {
+        if (!esAdmin()) {
+            throw new RuntimeException("No tienes permisos para editar usuarios.");
+        }
+
+        return usuarioRepository.save(usuario);
+    }
+
+    // 🛠️ **Eliminar un usuario**
+    public void eliminarUsuario(Long id) {
+        if (!esAdmin()) {
+            throw new RuntimeException("No tienes permisos para eliminar usuarios.");
+        }
+
+        usuarioRepository.deleteById(id);
+    }
+
+    // ✅ **Obtener usuario por ID**
+    public Optional<Usuario> obtenerPorId(Long id) {
+        return usuarioRepository.findById(id);
+    }
+
+    // ✅ **Obtener usuario por email**
     public Optional<Usuario> obtenerPorEmail(String email) {
         return usuarioRepository.findByEmail(email);
     }
 
+    // ✅ **Listar todos los usuarios**
     public List<Usuario> listarUsuarios() {
         return usuarioRepository.findAll();
     }
 
+    // ✅ **Obtener usuario autenticado**
     public Usuario getAuthenticatedUser() {
-        // Obtén el contexto de autenticación actual
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             throw new RuntimeException("No hay un usuario autenticado");
         }
-        // Obtén el email del usuario autenticado
-        String email = authentication.getName();
-        // Busca el usuario en la base de datos
-        return usuarioRepository.findByEmail(email)
+
+        return usuarioRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 }
