@@ -1,89 +1,166 @@
-/* Reset básico para asegurar consistencia entre navegadores */
+/* 🎯 Reset básico */
 body, h1, h2, h3, p, ul, ol, li, a, input, button {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* Estilo general del body */
+/* 🏆 Fondo con imagen deportiva */
 body {
-    background-color: #f4f4f9;
-    color: #333;
-    line-height: 1.6;
+    background-image: url('/images/fondo-deportivo.jpg'); /* Asegúrate de tener esta imagen en la carpeta correcta */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #fff;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-
-/* Contenedor principal */
-.container {
-    background: #ffffff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
     text-align: center;
 }
 
-/* Título */
-h2 {
-    margin-bottom: 1rem;
-    color: #222;
-    font-size: 1.5rem;
+/* 🎽 Contenedor principal */
+.container {
+    background: rgba(0, 0, 0, 0.85); /* Fondo oscuro con más contraste */
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.2);
+    width: 100%;
+    max-width: 800px; /* Ancho más grande para evitar que los elementos se encimen */
+    text-align: center;
 }
 
-/* Formularios */
+/* 🏅 Títulos */
+h2, h3 {
+    color: #FFD700; /* Dorado */
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+/* 📌 Formularios */
 form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    width: 100%;
 }
 
+/* 🔹 Etiquetas */
 label {
     font-weight: bold;
-    font-size: 0.9rem;
-    color: #444;
+    font-size: 1rem;
+    color: #FFD700; /* Dorado */
     text-align: left;
 }
 
-input[type="text"], input[type="password"] {
+/* ⚽ Inputs */
+input[type="text"], input[type="password"], input[type="email"], 
+input[type="date"], input[type="time"], input[type="number"], textarea {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ccc;
+    border: 2px solid #FFD700;
     border-radius: 5px;
     font-size: 1rem;
-    transition: border-color 0.2s;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transition: border-color 0.3s, background 0.3s;
 }
 
-input[type="text"]:focus, input[type="password"]:focus {
-    border-color: #007bff;
+input:focus, textarea:focus {
+    border-color: #ff4500; /* Naranja deportivo */
+    background: rgba(255, 255, 255, 0.2);
     outline: none;
 }
 
-button {
-    background-color: #007bff;
+/* 📌 Botones */
+button, .btn {
+    background: linear-gradient(90deg, #ff4500, #FFD700); /* Naranja y dorado */
     color: #fff;
     padding: 0.75rem;
     border: none;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 1.1rem;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease-in-out;
 }
 
-button:hover {
-    background-color: #0056b3;
+button:hover, .btn:hover {
+    background: linear-gradient(90deg, #FFD700, #ff4500);
+    transform: scale(1.05);
 }
 
-/* Mensaje de error */
-p[th\:if] {
-    color: #d9534f;
-    font-size: 0.9rem;
-    margin-top: -0.5rem;
-    text-align: left;
+/* 🔄 Botón de Volver al Dashboard */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
 }
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 2px solid #FFD700;
+}
+
+.btn-secondary:hover {
+    background: #FFD700;
+    color: #000;
+}
+
+/* 🏆 Mensajes de éxito y error */
+.alert-success {
+    background: rgba(50, 205, 50, 0.8);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+.alert-danger {
+    background: rgba(255, 69, 0, 0.8);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+/* 📊 Tablas de reservas */
+.table {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table th {
+    background: #ff4500;
+    color: white;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.table td {
+    padding: 10px;
+    border-bottom: 1px solid #FFD700;
+}
+
+/* 📱 Diseño responsivo */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 1.5rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    button, .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+
 
