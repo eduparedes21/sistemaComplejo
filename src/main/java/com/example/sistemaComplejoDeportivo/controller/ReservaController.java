@@ -52,7 +52,7 @@ public class ReservaController {
             reservaService.crearReserva(reserva);
             redirectAttributes.addFlashAttribute("mensaje", "Reserva registrada con éxito");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Ocurrió un error al guardar la reserva. Inténtalo nuevamente.");
+            redirectAttributes.addFlashAttribute("error", "Ocurrió un error al guardar la reserva.Ya existe una reserva en el mismo horario.");
         }
 
         return "redirect:/reservas";

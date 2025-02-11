@@ -3,6 +3,8 @@ package com.example.sistemaComplejoDeportivo.service;
 import com.example.sistemaComplejoDeportivo.exception.ResourceNotFoundException;
 import com.example.sistemaComplejoDeportivo.model.Reserva;
 import com.example.sistemaComplejoDeportivo.repository.ReservaRepository;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,19 @@ public class ReservaService {
     private ReservaRepository reservaRepository;
 
     public Reserva crearReserva(Reserva reserva) {
+        if (hayConflictoDeHorario(reserva.getFechaReserva(), reserva.getHoraInicio(), reserva.getHoraFin())) {
+            throw new RuntimeException("Ya existe una reserva en ese horario.");
+        }
         return reservaRepository.save(reserva);
+    }
+    public boolean hayConflictoDeHorario(LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
+        List<Reserva> reservasEnFecha = reservaRepository.findByFechaReserva(fecha);
+        for (Reserva r : reservasEnFecha) {
+            if (!(horaFin.isBefore(r.getHoraInicio()) || horaInicio.isAfter(r.getHoraFin()))) {
+                return true; // Existe conflicto
+            }
+        }
+        return false;
     }
 
     public List<Reserva> listarReservas() {
