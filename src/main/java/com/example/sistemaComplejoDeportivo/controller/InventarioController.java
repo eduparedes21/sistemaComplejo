@@ -1,86 +1,93 @@
 package com.example.sistemaComplejoDeportivo.controller;
 
 import com.example.sistemaComplejoDeportivo.model.Inventario;
-import com.example.sistemaComplejoDeportivo.repository.InventarioRepository;
+import com.example.sistemaComplejoDeportivo.model.Proveedor;
 import com.example.sistemaComplejoDeportivo.service.InventarioService;
+import com.example.sistemaComplejoDeportivo.service.ProveedorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.http.HttpStatus;
 
-@RestController
-@RequestMapping("/api/inventario")
+@Controller
+@RequestMapping("/inventario")
 public class InventarioController {
 
     @Autowired
     private InventarioService inventarioService;
+
     @Autowired
-    private InventarioRepository inventarioRepository;
+    private ProveedorService proveedorService;
 
-    // Endpoint para listar todos los artículos
+    // 📌 Mostrar el inventario
     @GetMapping
-    public ResponseEntity<List<Inventario>> listarTodosLosArticulos() {
-        List<Inventario> articulos = inventarioService.listarTodosLosArticulos();
-        return ResponseEntity.ok(articulos);
+    public String mostrarInventario(Model model) {
+        List<Inventario> productos = inventarioService.listarTodosLosArticulos();
+        model.addAttribute("productos", productos);
+        return "inventario"; // Asegúrate de que inventario.html esté en templates/
     }
 
-    // Endpoint para obtener un artículo por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerArticuloPorId(@PathVariable Integer id) {
-        return inventarioService.obtenerArticuloPorId(id)
-                .<ResponseEntity<?>>map(articulo -> ResponseEntity.ok(articulo))
-                .orElseGet(() -> ResponseEntity.status(404).body("Artículo no encontrado con ID: " + id));
+    // 📌 Cargar formulario de agregar producto
+    @GetMapping("/nuevo")
+    public String formularioNuevoProducto(Model model) {
+        List<Proveedor> proveedores = proveedorService.obtenerTodosLosProveedores();
+
+        System.out.println("🔹 Número de proveedores en el controlador: " + proveedores.size());
+        model.addAttribute("producto", new Inventario());
+        model.addAttribute("proveedores", proveedores); // Agregar proveedores a la vista
+        return "crear-producto"; // Crearemos una vista para agregar productos
     }
 
-    // Endpoint para crear un nuevo artículo
-    @PostMapping
-    public ResponseEntity<Inventario> crearArticulo(@RequestBody Inventario articulo) {
-        Inventario nuevoArticulo = inventarioService.crearArticulo(articulo);
-        return ResponseEntity.ok(nuevoArticulo);
-    }
-
-    // Endpoint para actualizar un artículo existente
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarArticulo(@PathVariable Integer id, @RequestBody Inventario articuloActualizado) {
-        Optional<Inventario> articuloExistente = inventarioRepository.findById(id);
-
-        if (!articuloExistente.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: No se encontró el producto con ID: " + id);
+    // 📌 Guardar un nuevo producto
+    @PostMapping("/crear")
+    public String crearProducto(@ModelAttribute Inventario producto, RedirectAttributes redirectAttributes) {
+        try {
+            inventarioService.crearArticulo(producto);
+            redirectAttributes.addFlashAttribute("mensaje", "Producto agregado con éxito.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al agregar el producto: " + e.getMessage());
         }
+        return "redirect:/inventario";
+    }
 
-        Inventario articulo = articuloExistente.get();
-
-        // Asignar valores si existen
-        articulo.setNombre(articuloActualizado.getNombre());
-        articulo.setCategoria(articuloActualizado.getCategoria());
-        articulo.setDescripcion(articuloActualizado.getDescripcion());
-        articulo.setPrecioUnitario(articuloActualizado.getPrecioUnitario());
-
-        // Asegurar que cantidadStock no sea null
-        if (articuloActualizado.getCantidadStock() == null) {
-            articulo.setCantidadStock(0);
+    // 📌 Cargar formulario de edición
+    @GetMapping("/editar/{id}")
+    public String editarProducto(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Inventario> producto = inventarioService.obtenerArticuloPorId(id);
+        if (producto.isPresent()) {
+            model.addAttribute("producto", producto.get());
+            return "editar-inventario"; // Asegúrate de crear esta vista
         } else {
-            articulo.setCantidadStock(articuloActualizado.getCantidadStock());
+            redirectAttributes.addFlashAttribute("error", "El producto no existe.");
+            return "redirect:/inventario";
         }
-
-        articulo.setProveedor(articuloActualizado.getProveedor());
-
-        inventarioRepository.save(articulo);
-
-        return ResponseEntity.ok("Producto actualizado correctamente.");
     }
 
-    // Endpoint para eliminar un artículo por ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarArticulo(@PathVariable Integer id) {
+    // 📌 Actualizar producto
+    @PostMapping("/actualizar/{id}")
+    public String actualizarProducto(@PathVariable Integer id, @ModelAttribute Inventario producto, RedirectAttributes redirectAttributes) {
+        try {
+            inventarioService.actualizarArticulo(id, producto);
+            redirectAttributes.addFlashAttribute("mensaje", "Producto actualizado con éxito.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al actualizar el producto.");
+        }
+        return "redirect:/inventario";
+    }
+
+    // 📌 Eliminar producto
+    @GetMapping("/eliminar/{id}")
+    public String eliminarProducto(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         try {
             inventarioService.eliminarArticulo(id);
-            return ResponseEntity.ok("Artículo eliminado exitosamente.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
+            redirectAttributes.addFlashAttribute("mensaje", "Producto eliminado correctamente.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "No se pudo eliminar el producto.");
         }
+        return "redirect:/inventario";
     }
 }

@@ -1,225 +1,115 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Inventario</title>
-        <link rel="stylesheet" href="/css/bootstrap.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-
+        <meta charset="UTF-8">
+        <title>Gestión de Inventario</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/styles.css">
     </head>
     <body>
         <div class="container mt-5">
-            <h1>Gestión de Inventario</h1>
-            <div class="mb-3">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarProducto">Agregar Producto</button>
-            </div>
-            <div class="mt-4">
-                <h2>Listado de Productos</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Categoría</th>
-                            <th>Cantidad</th>
-                            <th>Proveedor</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaProductos">
-                        <!-- Los datos se cargarán dinámicamente desde el API -->
-                    </tbody>
-                </table>
-            </div>
+            <h1 class="text-center">Gestión de Inventario</h1>
+
+            <!-- 📌 Mensajes de éxito o error -->
+            <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+            <!-- 🔹 Botón para agregar nuevo producto -->
+            <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalProducto">Agregar Producto</button>
+
+            <!-- 🔹 Tabla de productos -->
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Proveedor</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 📌 Evita errores si no hay productos en la lista -->
+                    <tr th:if="${productos == null or productos.isEmpty()}">
+                        <td colspan="8" class="text-center">No hay productos en el inventario.</td>
+                    </tr>
+
+                    <tr th:each="producto : ${productos}">
+                        <td th:text="${producto.idArticulo}"></td>
+                        <td th:text="${producto.nombre}"></td>
+                        <td th:text="${producto.categoria}"></td>
+                        <td th:text="${producto.descripcion}"></td>
+                        <td th:text="${producto.cantidadStock}"></td>
+                        <td th:text="${producto.precioUnitario}"></td>
+                        <td th:if="${producto.proveedor != null}" th:text="${producto.proveedor.nombreEmpresa}"></td>
+                        <td th:if="${producto.proveedor == null}" class="text-muted">Sin proveedor</td>
+                        <td>
+                            <a th:href="@{/inventario/editar/{id}(id=${producto.idArticulo})}" class="btn btn-warning btn-sm">Editar</a>
+                            <a th:href="@{/inventario/eliminar/{id}(id=${producto.idArticulo})}" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
-        <!-- Modal para agregar/editar producto -->
-        <div class="modal fade" id="modalAgregarProducto" tabindex="-1" aria-labelledby="modalAgregarProductoLabel" aria-hidden="true">
+        <!-- Modal de producto -->
+        <div class="modal fade" id="modalProducto" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitulo">Agregar Producto</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title">Agregar Producto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-
-                    <div class="modal-body">
-                        <form id="formProducto">
-                            <input type="hidden" id="productoId">
+                    <form action="/inventario/crear" method="post">
+                        <div class="modal-body">
                             <div class="mb-3">
-                                <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="nombre" required>
+                                <label>Nombre:</label>
+                                <input type="text" name="nombre" class="form-control" required>
                             </div>
                             <div class="mb-3">
-                                <label for="categoria" class="form-label">Categoría</label>
-                                <input type="text" class="form-control" id="categoria" required>
+                                <label>Categoría:</label>
+                                <input type="text" name="categoria" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label for="descripcion" class="form-label">Descripción</label>
-                                <input type="text" class="form-control" id="descripcion" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="cantidadStock" class="form-label">Cantidad</label>
-                                <input type="number" class="form-control" id="cantidadStock" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="precioUnitario" class="form-label">Precio Unitario</label>
-                                <input type="number" step="0.01" class="form-control" id="precioUnitario" required>
+                                <label>Descripción:</label>
+                                <input type="text" name="descripcion" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label for="proveedor" class="form-label">Proveedor</label>
-                                <select class="form-control" id="proveedor" required>
-                                    <option th:each="prov : ${proveedores}" th:value="${prov.idProveedor}" th:text="${prov.nombreEmpresa}">
-                                        Proveedor
+                                <label>Cantidad:</label>
+                                <input type="number" name="cantidadStock" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label>Precio Unitario:</label>
+                                <input type="number" step="0.01" name="precioUnitario" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="proveedor">Proveedor:</label>
+                                <select id="proveedor" name="proveedor.idProveedor" class="form-control" required>
+                                    <option value="">Seleccione un proveedor</option>
+                                    <option th:each="prov : ${proveedores}" 
+                                            th:value="${prov.idProveedor}" 
+                                            th:text="${prov.nombreEmpresa}">
                                     </option>
                                 </select>
                             </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" id="btnGuardar" class="btn btn-primary">Guardar Cambios</button>
-                    </div>
+
+
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
 
-        <script>
-            // URL base para las solicitudes API
-            const apiUrl = "/api/inventario";
-
-            // Cargar productos al iniciar
-            async function cargarProductos() {
-                try {
-                    const response = await fetch('/api/inventario');
-                    const productos = await response.json();
-
-                    const tabla = document.getElementById("tablaProductos");
-                    tabla.innerHTML = productos.map(prod => `
-            <tr>
-                <td>${prod.id}</td>
-                <td>${prod.nombre}</td>
-                <td>${prod.categoria ? prod.categoria : 'Sin categoría'}</td>
-                <td>${prod.cantidad}</td>
-                <td>${prod.proveedor ? prod.proveedor.nombreEmpresa : 'Sin proveedor'}</td>
-                <td>
-                    <button class="btn btn-warning btn-sm" onclick="editarProducto(${prod.id})">Editar</button>
-                    <button class="btn btn-danger btn-sm" onclick="eliminarProducto(${prod.id})">Eliminar</button>
-                </td>
-            </tr>
-        `).join('');
-                } catch (error) {
-                    console.error('Error al cargar los productos:', error);
-                    alert('Hubo un problema al cargar los productos.');
-                }
-            }
-
-
-            // Abrir modal para agregar o editar producto
-            document.getElementById("btnGuardar").addEventListener("click", async () => {
-                const id = document.getElementById("productoId").value;
-                const nombre = document.getElementById("nombre").value;
-                const categoria = document.getElementById("categoria").value;
-                const descripcion = document.getElementById("descripcion").value;
-                const precioUnitario = parseFloat(document.getElementById("precioUnitario").value) || 0.0;
-
-                const cantidadStock = document.getElementById("cantidadStock").value.trim();
-                const cantidadStockParsed = cantidadStock === "" ? 0 : Number(cantidadStock);
-
-                const idProveedor = document.getElementById("proveedor").value;
-
-                const producto = {
-                    nombre,
-                    categoria,
-                    descripcion,
-                    cantidadStock: cantidadStockParsed,
-                    precioUnitario,
-                    proveedor: {idProveedor}
-                };
-
-                console.log("Enviando producto:", JSON.stringify(producto, null, 2)); // Depuración
-
-                let response;
-                if (id) {
-                    response = await fetch(`${apiUrl}/${id}`, {
-                        method: "PUT",
-                        headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify(producto)
-                    });
-                } else {
-                    response = await fetch(apiUrl, {
-                        method: "POST",
-                        headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify(producto)
-                    });
-                }
-
-                if (response.ok) {
-                    cargarProductos();
-                    let modal = bootstrap.Modal.getInstance(document.getElementById("modalAgregarProducto"));
-                    modal.hide(); // 🔹 Cierra el modal correctamente
-                } else {
-                    alert("Error al guardar el producto");
-                }
-            });
-
-            // Editar producto
-            async function editarProducto(id) {
-                console.log("Intentando editar producto con ID:", id);
-
-                try {
-                    const response = await fetch(`/api/inventario/${id}`);
-                    if (!response.ok) {
-                        throw new Error(`Error al obtener producto: ${response.status} ${response.statusText}`);
-                    }
-
-                    const producto = await response.json();
-                    console.log("Producto recibido:", producto);
-
-                    // Asegúrate de que los elementos existen antes de asignarles valores
-                    const modalTitulo = document.getElementById("modalTitulo");
-                    const productoId = document.getElementById("productoId");
-                    const nombre = document.getElementById("nombre");
-                    const categoria = document.getElementById("categoria");
-                    const cantidadStock = document.getElementById("cantidadStock");
-                    const proveedor = document.getElementById("proveedor");
-
-                    if (!modalTitulo || !productoId || !nombre || !categoria || !cantidadStock || !proveedor) {
-                        throw new Error("No se encontraron todos los elementos necesarios en el DOM.");
-                    }
-
-                    modalTitulo.textContent = "Editar Producto";
-                    productoId.value = producto.id;
-                    nombre.value = producto.nombre;
-                    categoria.value = producto.categoria || '';
-                    cantidadStock.value = producto.cantidadStock;
-                    proveedor.value = producto.proveedor ? producto.proveedor.idProveedor : '';
-
-                    new bootstrap.Modal(document.getElementById("modalAgregarProducto")).show();
-                } catch (error) {
-                    console.error('Error en editarProducto:', error);
-                    alert('No se puede cargar la información del producto');
-                }
-            }
-
-
-
-
-            // Eliminar producto
-            async function eliminarProducto(id) {
-                console.log('Eliminar Producto ID:', id); // Para verificar el ID recibido
-                if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
-                    const response = await fetch(`${apiUrl}/${id}`, {method: "DELETE"});
-                    if (response.ok) {
-                        cargarProductos();
-                    } else {
-                        alert("Error al eliminar el producto");
-                    }
-                }
-            }
-
-            // Inicializar
-            cargarProductos();
-        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
+
+

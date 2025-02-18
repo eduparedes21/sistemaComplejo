@@ -55,7 +55,7 @@ label {
     text-align: left;
 }
 
-/* ⚽ Inputs */
+/* ⚽ Inputs (Ahora los textos siempre serán visibles) */
 input[type="text"], input[type="password"], input[type="email"], 
 input[type="date"], input[type="time"], input[type="number"], textarea {
     width: 100%;
@@ -63,15 +63,21 @@ input[type="date"], input[type="time"], input[type="number"], textarea {
     border: 2px solid #28A745; /* Verde césped */
     border-radius: 5px;
     font-size: 1rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.2); /* Más claro para mejorar visibilidad */
     color: #fff;
     transition: border-color 0.3s, background 0.3s;
 }
 
+/* Mejor visibilidad al escribir en los campos */
+input::placeholder, textarea::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
 input:focus, textarea:focus {
     border-color: #007BFF; /* Azul cancha */
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.3);
     outline: none;
+    color: #fff;
 }
 
 /* 🎽 Botones deportivos */
@@ -86,12 +92,13 @@ button, .btn {
     transition: all 0.3s ease-in-out;
 }
 
+/* Botones mejorados para que sean siempre visibles */
 button:hover, .btn:hover {
     background: linear-gradient(90deg, #007BFF, #28A745);
     transform: scale(1.05);
 }
 
-/* 🔄 Botón de Volver al Dashboard */
+/* 🔄 Botón de Volver al Dashboard (Ahora siempre visible) */
 .button-group {
     display: flex;
     justify-content: space-between;
@@ -99,8 +106,8 @@ button:hover, .btn:hover {
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.3);
+    color: #FFC107;
     border: 2px solid #FFC107;
 }
 
@@ -161,6 +168,7 @@ button:hover, .btn:hover {
         margin-bottom: 0.5rem;
     }
 }
+
 
 
 

@@ -8,9 +8,7 @@ import java.util.List;
 
 @Repository
 public interface InventarioRepository extends JpaRepository<Inventario, Integer> {
-
-    // Buscar artículos por nombre (opcional, si necesitas una búsqueda específica)
+    // 📌 Buscar productos por nombre
     List<Inventario> findByNombreContainingIgnoreCase(String nombre);
-
-    // Otros métodos personalizados pueden añadirse aquí si es necesario
 }
+
