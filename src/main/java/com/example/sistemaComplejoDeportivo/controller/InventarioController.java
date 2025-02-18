@@ -35,11 +35,9 @@ public class InventarioController {
     @GetMapping("/nuevo")
     public String formularioNuevoProducto(Model model) {
         List<Proveedor> proveedores = proveedorService.obtenerTodosLosProveedores();
-
-        System.out.println("🔹 Número de proveedores en el controlador: " + proveedores.size());
         model.addAttribute("producto", new Inventario());
         model.addAttribute("proveedores", proveedores); // Agregar proveedores a la vista
-        return "crear-producto"; // Crearemos una vista para agregar productos
+        return "crear-producto"; // Asegúrate de que crear-producto.html esté en templates/
     }
 
     // 📌 Guardar un nuevo producto
@@ -59,7 +57,9 @@ public class InventarioController {
     public String editarProducto(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Inventario> producto = inventarioService.obtenerArticuloPorId(id);
         if (producto.isPresent()) {
+            List<Proveedor> proveedores = proveedorService.obtenerTodosLosProveedores();
             model.addAttribute("producto", producto.get());
+            model.addAttribute("proveedores", proveedores); // Añadir proveedores al modelo
             return "editar-inventario"; // Asegúrate de crear esta vista
         } else {
             redirectAttributes.addFlashAttribute("error", "El producto no existe.");

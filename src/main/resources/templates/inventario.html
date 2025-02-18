@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es">
     <head>
         <meta charset="UTF-8">
         <title>Gestión de Inventario</title>
@@ -8,108 +8,43 @@
     </head>
     <body>
         <div class="container mt-5">
-            <h1 class="text-center">Gestión de Inventario</h1>
+            <h1 class="mb-4 text-center">Gestión de Inventario</h1>
 
-            <!-- 📌 Mensajes de éxito o error -->
-            <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
-            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <!-- Botón Agregar Producto -->
+            <div class="d-flex justify-content-end mb-3">
+                <a href="/inventario/nuevo" class="btn btn-success">Agregar Producto</a>
+            </div>
 
-            <!-- 🔹 Botón para agregar nuevo producto -->
-            <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalProducto">Agregar Producto</button>
-
-            <!-- 🔹 Tabla de productos -->
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
+            <!-- Tabla de Productos -->
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Nombre</th>
-                        <th>Categoría</th>
                         <th>Descripción</th>
                         <th>Cantidad</th>
                         <th>Precio Unitario</th>
+                        <th>Categoría</th>
                         <th>Proveedor</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- 📌 Evita errores si no hay productos en la lista -->
-                    <tr th:if="${productos == null or productos.isEmpty()}">
-                        <td colspan="8" class="text-center">No hay productos en el inventario.</td>
-                    </tr>
-
                     <tr th:each="producto : ${productos}">
-                        <td th:text="${producto.idArticulo}"></td>
                         <td th:text="${producto.nombre}"></td>
-                        <td th:text="${producto.categoria}"></td>
                         <td th:text="${producto.descripcion}"></td>
                         <td th:text="${producto.cantidadStock}"></td>
                         <td th:text="${producto.precioUnitario}"></td>
-                        <td th:if="${producto.proveedor != null}" th:text="${producto.proveedor.nombreEmpresa}"></td>
-                        <td th:if="${producto.proveedor == null}" class="text-muted">Sin proveedor</td>
+                        <td th:text="${producto.categoria}"></td>
+                        <td th:text="${producto.proveedor.nombreEmpresa}"></td>
                         <td>
-                            <a th:href="@{/inventario/editar/{id}(id=${producto.idArticulo})}" class="btn btn-warning btn-sm">Editar</a>
-                            <a th:href="@{/inventario/eliminar/{id}(id=${producto.idArticulo})}" class="btn btn-danger btn-sm">Eliminar</a>
+                            <a th:href="@{'/inventario/editar/' + ${producto.idArticulo}}" class="btn btn-primary btn-sm">Editar</a>
+                            <a th:href="@{'/inventario/eliminar/' + ${producto.idArticulo}}" class="btn btn-danger btn-sm">Eliminar</a>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Modal de producto -->
-        <div class="modal fade" id="modalProducto" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Agregar Producto</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <form action="/inventario/crear" method="post">
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label>Nombre:</label>
-                                <input type="text" name="nombre" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Categoría:</label>
-                                <input type="text" name="categoria" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label>Descripción:</label>
-                                <input type="text" name="descripcion" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label>Cantidad:</label>
-                                <input type="number" name="cantidadStock" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Precio Unitario:</label>
-                                <input type="number" step="0.01" name="precioUnitario" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="proveedor">Proveedor:</label>
-                                <select id="proveedor" name="proveedor.idProveedor" class="form-control" required>
-                                    <option value="">Seleccione un proveedor</option>
-                                    <option th:each="prov : ${proveedores}" 
-                                            th:value="${prov.idProveedor}" 
-                                            th:text="${prov.nombreEmpresa}">
-                                    </option>
-                                </select>
-                            </div>
-
-
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            <button type="submit" class="btn btn-primary">Guardar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
-
-
