@@ -8,6 +8,8 @@ public class SistemaComplejoDeportivoApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SistemaComplejoDeportivoApplication.class, args);
+                
+
 	}
 
 }
