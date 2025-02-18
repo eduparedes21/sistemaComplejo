@@ -10,5 +10,6 @@ import java.util.List;
 public interface InventarioRepository extends JpaRepository<Inventario, Integer> {
     // 📌 Buscar productos por nombre
     List<Inventario> findByNombreContainingIgnoreCase(String nombre);
+    boolean existsByProveedor_IdProveedor(Integer idProveedor);
 }
 

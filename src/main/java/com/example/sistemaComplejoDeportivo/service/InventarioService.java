@@ -1,6 +1,7 @@
 package com.example.sistemaComplejoDeportivo.service;
 
 import com.example.sistemaComplejoDeportivo.model.Inventario;
+import com.example.sistemaComplejoDeportivo.model.Proveedor;
 import com.example.sistemaComplejoDeportivo.repository.InventarioRepository;
 import com.example.sistemaComplejoDeportivo.repository.ProveedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,15 @@ public class InventarioService {
 
     // 📌 Listar todos los productos del inventario
     public List<Inventario> listarTodosLosArticulos() {
-        return inventarioRepository.findAll();
+        List<Inventario> productos = inventarioRepository.findAll();
+
+        // 📌 Asegurar que ningún producto tenga un proveedor nulo
+        for (Inventario producto : productos) {
+            if (producto.getProveedor() == null) {
+                producto.setProveedor(new Proveedor()); // Evitar error de referencia nula
+            }
+        }
+        return productos;
     }
 
     // 📌 Obtener un producto por su ID
@@ -65,4 +74,3 @@ public class InventarioService {
         }
     }
 }
-

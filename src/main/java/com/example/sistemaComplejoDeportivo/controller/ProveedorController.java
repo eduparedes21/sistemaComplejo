@@ -73,8 +73,9 @@ public class ProveedorController {
             proveedorService.eliminarProveedor(id);
             redirectAttributes.addFlashAttribute("mensaje", "Proveedor eliminado correctamente.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "No se pudo eliminar el proveedor.");
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/proveedores";
     }
+
 }

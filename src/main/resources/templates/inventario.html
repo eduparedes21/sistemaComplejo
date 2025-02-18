@@ -35,7 +35,7 @@
                         <td th:text="${producto.cantidadStock}"></td>
                         <td th:text="${producto.precioUnitario}"></td>
                         <td th:text="${producto.categoria}"></td>
-                        <td th:text="${producto.proveedor.nombreEmpresa}"></td>
+                        <td th:text="${producto.proveedor != null ? producto.proveedor.nombreEmpresa : 'Sin proveedor'}"></td>
                         <td>
                             <a th:href="@{'/inventario/editar/' + ${producto.idArticulo}}" class="btn btn-primary btn-sm">Editar</a>
                             <a th:href="@{'/inventario/eliminar/' + ${producto.idArticulo}}" class="btn btn-danger btn-sm">Eliminar</a>
