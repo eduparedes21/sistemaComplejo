@@ -7,51 +7,45 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 
-@RestController
-@RequestMapping("/api/proveedores")
+@Controller
+@RequestMapping("/proveedores")
 public class ProveedorController {
 
     @Autowired
     private ProveedorService proveedorService;
 
     @GetMapping
-    public List<Proveedor> obtenerTodos() {
-        return proveedorService.obtenerTodosLosProveedores();
+    public String listarProveedores(Model model) {
+        List<Proveedor> proveedores = proveedorService.obtenerTodosLosProveedores();
+        model.addAttribute("proveedores", proveedores);
+        model.addAttribute("nuevoProveedor", new Proveedor());
+        return "proveedores";
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerPorId(@PathVariable Integer id) {
-        return proveedorService.obtenerProveedorPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public Proveedor crearProveedor(@RequestBody Proveedor proveedor) {
-        return proveedorService.guardarProveedor(proveedor);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarProveedor(@PathVariable Integer id, @RequestBody Proveedor proveedorActualizado) {
-        return proveedorService.obtenerProveedorPorId(id)
-                .map(proveedorExistente -> {
-                    proveedorExistente.setNombreEmpresa(proveedorActualizado.getNombreEmpresa());
-                    proveedorExistente.setContacto(proveedorActualizado.getContacto());
-                    proveedorExistente.setTelefono(proveedorActualizado.getTelefono());
-                    proveedorExistente.setDireccion(proveedorActualizado.getDireccion());
-                    proveedorService.guardarProveedor(proveedorExistente);
-                    return ResponseEntity.ok(proveedorExistente);
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarProveedor(@PathVariable Integer id) {
-        if (proveedorService.obtenerProveedorPorId(id).isPresent()) {
-            proveedorService.eliminarProveedor(id);
-            return ResponseEntity.noContent().build();
+    @GetMapping("/editar/{id}")
+    public String mostrarFormularioEdicion(@PathVariable("id") Integer id, Model model) {
+        Optional<Proveedor> proveedorOptional = proveedorService.obtenerProveedorPorId(id);
+        if (proveedorOptional.isPresent()) {
+            model.addAttribute("proveedor", proveedorOptional.get());
+            return "editarProveedor";
+        } else {
+            return "redirect:/proveedores";
         }
-        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/actualizar")
+    public String actualizarProveedor(@ModelAttribute Proveedor proveedor) {
+        proveedorService.guardarProveedor(proveedor);
+        return "redirect:/proveedores";
+    }
+
+    @GetMapping("/eliminar/{id}")
+    public String eliminarProveedor(@PathVariable Integer id) {
+        proveedorService.eliminarProveedor(id);
+        return "redirect:/proveedores";
     }
 }

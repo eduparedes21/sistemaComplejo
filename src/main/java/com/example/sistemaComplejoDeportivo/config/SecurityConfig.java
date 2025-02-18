@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 
 @Configuration
 public class SecurityConfig {
@@ -37,7 +39,7 @@ public class SecurityConfig {
                 .requestMatchers("/caja/reportes").permitAll() // Permitir acceso a todos
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll() // APIs REST públicas
-
+                .requestMatchers("/proveedores/**").hasRole("ADMIN") // Proteger proveedores para ADMIN
                 .anyRequest().authenticated() // Requiere autenticación para el resto
                 )
                 .formLogin(login -> login
@@ -52,11 +54,21 @@ public class SecurityConfig {
                 .logoutUrl("/logout") // Ruta para cerrar sesión
                 .logoutSuccessUrl("/api/auth/login") // Redirigir tras logout
                 )
+                .exceptionHandling(ex -> ex
+                .accessDeniedHandler(accessDeniedHandler()) // Manejar acceso denegado
+                )
                 .sessionManagement(session -> session
                 .maximumSessions(1) // Solo permitir una sesión por usuario
                 .maxSessionsPreventsLogin(false) // Permitir el nuevo login si se exceden las sesiones
                 );
         return http.build();
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
+        accessDeniedHandler.setErrorPage("/accessDenied");
+        return accessDeniedHandler;
     }
 
     @Bean
@@ -77,5 +89,4 @@ public class SecurityConfig {
                 .build())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
-
 }
