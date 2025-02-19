@@ -27,7 +27,12 @@ public class MovimientoCaja {
     private TipoMovimiento tipo; // INGRESO o EGRESO
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id_usuario") // Coincide con la columna en la base de datos
+    @JoinColumn(name = "usuario_id_usuario")
     private Usuario usuario;
 
+    @ManyToOne
+    @JoinColumn(name = "id_articulo", referencedColumnName = "id_articulo", nullable = true) // Asociación opcional
+    private Inventario producto; // 📌 Relación con inventario
+
+    private Integer cantidad; // 📌 Cantidad de producto vendido (si aplica)
 }

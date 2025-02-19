@@ -8,6 +8,7 @@
     <body>
         <div class="container mt-5">
             <h1>Reportes de Caja</h1>
+
             <form action="#" method="get" id="formReporte">
                 <div class="mb-3">
                     <label for="inicio" class="form-label">Fecha Inicio:</label>
@@ -27,7 +28,7 @@
                 </div>
                 <div class="mb-3 text-end">
                     <button type="button" class="btn btn-primary" id="btnGenerar">Generar Reporte</button>
-                    <a href="/dashboard" class="btn btn-secondary">Volver al Menu</a>
+                    <a href="/dashboard" class="btn btn-secondary">Volver al Menú</a>
                 </div>
             </form>
 
@@ -42,6 +43,8 @@
                             <th>Descripción</th>
                             <th>Monto</th>
                             <th>Usuario</th>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
                         </tr>
                     </thead>
                     <tbody id="tablaResultados">
@@ -85,6 +88,8 @@
                     <td>${mov.descripcion}</td>
                     <td>${mov.monto}</td>
                     <td>${mov.usuario.nombre}</td>
+                    <td>${mov.producto ? mov.producto.nombre : 'N/A'}</td>
+                    <td>${mov.cantidad ? mov.cantidad : '-'}</td>
                 </tr>
             `).join("");
             });

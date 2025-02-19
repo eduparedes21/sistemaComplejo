@@ -1,16 +1,18 @@
 package com.example.sistemaComplejoDeportivo.controller;
 
+import com.example.sistemaComplejoDeportivo.model.Inventario;
 import com.example.sistemaComplejoDeportivo.model.MovimientoCaja;
 import com.example.sistemaComplejoDeportivo.model.TipoMovimiento;
 import com.example.sistemaComplejoDeportivo.model.Usuario;
 import com.example.sistemaComplejoDeportivo.service.MovimientoCajaService;
 import com.example.sistemaComplejoDeportivo.service.UsuarioService;
-import java.security.Principal;
+import com.example.sistemaComplejoDeportivo.service.InventarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 
 @RestController
@@ -21,44 +23,43 @@ public class MovimientoCajaController {
     private MovimientoCajaService movimientoCajaService;
     @Autowired
     private UsuarioService usuarioService;
-    
+    @Autowired
+    private InventarioService inventarioService;
+
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarMovimiento(
-            @RequestParam String categoria,
             @RequestParam(required = false) String descripcion,
             @RequestParam Double monto,
             @RequestParam String tipo,
+            @RequestParam(required = false) Integer idArticulo,
+            @RequestParam(required = false) Integer cantidad,
             Principal principal) {
 
-        // Obtener usuario autenticado
-        String emailUsuario = principal.getName(); // Asegúrate de que el usuario esté autenticado
-        Usuario usuario = usuarioService.obtenerPorEmail(emailUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        try {
+            String emailUsuario = principal.getName();
+            Usuario usuario = usuarioService.obtenerPorEmail(emailUsuario)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Crear y guardar el movimiento
-        MovimientoCaja movimiento = new MovimientoCaja();
-        movimiento.setCategoria(categoria);
-        movimiento.setDescripcion(descripcion);
-        movimiento.setMonto(monto);
-        movimiento.setTipo(TipoMovimiento.valueOf(tipo));
-        movimiento.setUsuario(usuario);
+            MovimientoCaja movimiento = new MovimientoCaja();
+            movimiento.setDescripcion(descripcion);
+            movimiento.setMonto(monto);
+            movimiento.setTipo(TipoMovimiento.valueOf(tipo));
+            movimiento.setUsuario(usuario);
+            movimiento.setFechaHora(LocalDateTime.now());
 
-        MovimientoCaja movimientoGuardado = movimientoCajaService.registrarMovimiento(movimiento);
+            if (idArticulo != null && cantidad != null) {
+                Inventario producto = inventarioService.obtenerArticuloPorId(idArticulo)
+                        .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                movimiento.setProducto(producto);
+                movimiento.setCantidad(cantidad);
+            }
 
-        return ResponseEntity.ok("Movimiento registrado con éxito.");
-    }
+            MovimientoCaja movimientoGuardado = movimientoCajaService.registrarMovimiento(movimiento);
 
-    @GetMapping("/movimientos")
-    public List<MovimientoCaja> obtenerMovimientos(@RequestParam String inicio, @RequestParam String fin) {
-        LocalDateTime fechaInicio = LocalDateTime.parse(inicio);
-        LocalDateTime fechaFin = LocalDateTime.parse(fin);
-        return movimientoCajaService.obtenerMovimientosPorFecha(fechaInicio, fechaFin);
-    }
+            return ResponseEntity.ok("Movimiento registrado con éxito.");
 
-    @GetMapping("/balance")
-    public double calcularBalance(@RequestParam String inicio, @RequestParam String fin) {
-        LocalDateTime fechaInicio = LocalDateTime.parse(inicio);
-        LocalDateTime fechaFin = LocalDateTime.parse(fin);
-        return movimientoCajaService.calcularBalance(fechaInicio, fechaFin);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 }
