@@ -29,7 +29,6 @@ public class MovimientoCajaController {
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarMovimiento(
             @RequestParam(required = false) String descripcion,
-            @RequestParam Double monto,
             @RequestParam String tipo,
             @RequestParam(required = false) Integer idArticulo,
             @RequestParam(required = false) Integer cantidad,
@@ -42,7 +41,6 @@ public class MovimientoCajaController {
 
             MovimientoCaja movimiento = new MovimientoCaja();
             movimiento.setDescripcion(descripcion);
-            movimiento.setMonto(monto);
             movimiento.setTipo(TipoMovimiento.valueOf(tipo));
             movimiento.setUsuario(usuario);
             movimiento.setFechaHora(LocalDateTime.now());
@@ -50,7 +48,7 @@ public class MovimientoCajaController {
             if (idArticulo != null && cantidad != null) {
                 Inventario producto = inventarioService.obtenerArticuloPorId(idArticulo)
                         .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-                movimiento.setProducto(producto);
+                movimiento.setInventario(producto);
                 movimiento.setCantidad(cantidad);
             }
 
@@ -62,4 +60,5 @@ public class MovimientoCajaController {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
+
 }

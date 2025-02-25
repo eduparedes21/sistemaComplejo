@@ -1,97 +1,114 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Reportes de Caja</title>
+        <title>Reporte de Movimientos de Caja</title>
         <link rel="stylesheet" href="/css/bootstrap.min.css">
         <link rel="stylesheet" href="/css/styles.css">
     </head>
     <body>
         <div class="container mt-5">
-            <h1>Reportes de Caja</h1>
+            <h1>Reporte de Movimientos de Caja</h1>
 
-            <form action="#" method="get" id="formReporte">
-                <div class="mb-3">
-                    <label for="inicio" class="form-label">Fecha Inicio:</label>
-                    <input type="datetime-local" id="inicio" name="inicio" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="fin" class="form-label">Fecha Fin:</label>
-                    <input type="datetime-local" id="fin" name="fin" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="tipo" class="form-label">Tipo:</label>
-                    <select id="tipo" name="tipo" class="form-select">
-                        <option value="">Todos</option>
-                        <option value="INGRESO">Ingreso</option>
-                        <option value="EGRESO">Egreso</option>
-                    </select>
-                </div>
-                <div class="mb-3 text-end">
-                    <button type="button" class="btn btn-primary" id="btnGenerar">Generar Reporte</button>
-                    <a href="/dashboard" class="btn btn-secondary">Volver al Menú</a>
-                </div>
-            </form>
-
-            <div class="mt-4" id="resultados">
-                <h2>Resultados:</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Fecha y Hora</th>
-                            <th>Categoría</th>
-                            <th>Tipo</th>
-                            <th>Descripción</th>
-                            <th>Monto</th>
-                            <th>Usuario</th>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaResultados">
-                    </tbody>
-                </table>
+            <div class="mb-3">
+                <label for="inicio">Fecha Inicio:</label>
+                <input type="datetime-local" id="inicio" class="form-control">
             </div>
+
+            <div class="mb-3">
+                <label for="fin">Fecha Fin:</label>
+                <input type="datetime-local" id="fin" class="form-control">
+            </div>
+
+            <button id="btnGenerar" class="btn btn-primary">Generar Reporte</button>
+            <a href="/dashboard" class="btn btn-secondary">Volver al Menú</a>
+
+            <h2 class="mt-4">Resultados:</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Fecha y Hora</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                        <th>Monto</th>
+                        <th>Usuario</th> <!-- ✅ Nueva columna corregida -->
+                    </tr>
+                </thead>
+                <tbody id="tablaResultados">
+                    <!-- Aquí se insertarán los datos -->
+                </tbody>
+            </table>
         </div>
 
         <script>
-            document.getElementById("btnGenerar").addEventListener("click", async () => {
-                const inicio = document.getElementById("inicio").value;
-                const fin = document.getElementById("fin").value;
-                const tipo = document.getElementById("tipo").value;
+            document.addEventListener("DOMContentLoaded", function () {
+                document.getElementById("btnGenerar").addEventListener("click", async () => {
+                    const inicio = document.getElementById("inicio").value;
+                    const fin = document.getElementById("fin").value;
 
-                if (!inicio || !fin) {
-                    alert("Debe seleccionar una fecha de inicio y una fecha de fin.");
-                    return;
+                    const tabla = document.getElementById("tablaResultados");
+                    if (!tabla) {
+                        console.error("❌ ERROR: Elemento tablaResultados no encontrado en el DOM.");
+                        alert("Error: No se encontró la tabla de resultados.");
+                        return;
+                    }
+
+                    let url = `/api/caja/reportes/movimientos?inicio=${encodeURIComponent(inicio)}&fin=${encodeURIComponent(fin)}`;
+
+                    try {
+                        const response = await fetch(url, {headers: {'Accept': 'application/json'}});
+
+                        if (!response.ok) {
+                            throw new Error(`Error HTTP: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        console.log("✅ JSON recibido:", data);
+
+                        // Limpiar la tabla antes de agregar nuevos datos
+                        tabla.innerHTML = "";
+
+                        // Si no hay datos, mostrar un mensaje en la tabla
+                        if (data.length === 0) {
+                            tabla.innerHTML = "<tr><td colspan='8' class='text-center'>No hay datos disponibles</td></tr>";
+                            return;
+                        }
+
+                        // Llenar la tabla con los datos recibidos
+                        tabla.innerHTML = data.map(mov => `
+                            <tr>
+                                <td>${formatearFecha(mov.fechaHora)}</td>
+                                <td>${mov.inventario ? mov.inventario.nombre : 'N/A'}</td>
+                                <td>${mov.inventario?.categoria || 'Sin categoría'}</td>
+                                <td>${mov.tipo}</td>
+                                <td>${mov.descripcion}</td>
+                                <td>${mov.cantidad ? mov.cantidad : '-'}</td>
+                                <td>${formatearMontoPYG(mov.monto)}</td>
+                                <td>${mov.usuario ? mov.usuario.nombre : 'No asignado'}</td> 
+                            </tr>
+                        `).join("");
+
+                    } catch (error) {
+                        console.error("❌ ERROR al generar el reporte:", error);
+                        alert("Error al generar el reporte. Revisa la consola para más detalles.");
+                    }
+                });
+
+                // ✅ Función para formatear la fecha en "dd/MM/yyyy HH:mm:ss"
+                function formatearFecha(fechaISO) {
+                    if (!fechaISO)
+                        return "N/A";
+                    const fecha = new Date(fechaISO);
+                    return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}/${fecha.getFullYear()} 
+                        ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}:${fecha.getSeconds().toString().padStart(2, '0')}`;
                 }
 
-                let url = `/api/caja/reportes/movimientos?inicio=${encodeURIComponent(inicio)}&fin=${encodeURIComponent(fin)}`;
-
-                if (tipo && tipo !== "") {
-                    url = `/api/caja/reportes/movimientos/tipo?inicio=${encodeURIComponent(inicio)}&fin=${encodeURIComponent(fin)}&tipo=${encodeURIComponent(tipo)}`;
+                // ✅ Función para formatear la moneda en "100.000 Gs"
+                function formatearMontoPYG(monto) {
+                    return new Intl.NumberFormat("es-PY").format(monto) + " Gs";
                 }
-
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    alert("Ocurrió un error al obtener los reportes. Verifique los filtros.");
-                    return;
-                }
-
-                const data = await response.json();
-
-                const tabla = document.getElementById("tablaResultados");
-                tabla.innerHTML = data.map(mov => `
-                <tr>
-                    <td>${mov.fechaHora}</td>
-                    <td>${mov.categoria}</td>
-                    <td>${mov.tipo}</td>
-                    <td>${mov.descripcion}</td>
-                    <td>${mov.monto}</td>
-                    <td>${mov.usuario.nombre}</td>
-                    <td>${mov.producto ? mov.producto.nombre : 'N/A'}</td>
-                    <td>${mov.cantidad ? mov.cantidad : '-'}</td>
-                </tr>
-            `).join("");
             });
         </script>
     </body>

@@ -15,7 +15,6 @@ public class MovimientoCaja {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String categoria;
     private String descripcion;
 
     @Column(name = "fecha_hora")
@@ -27,12 +26,12 @@ public class MovimientoCaja {
     private TipoMovimiento tipo; // INGRESO o EGRESO
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id_usuario")
+    @JoinColumn(name = "usuario_id_usuario", referencedColumnName = "id_usuario", nullable = true)
     private Usuario usuario;
 
     @ManyToOne
-    @JoinColumn(name = "id_articulo", referencedColumnName = "id_articulo", nullable = true) // Asociación opcional
-    private Inventario producto; // 📌 Relación con inventario
+    @JoinColumn(name = "id_articulo", referencedColumnName = "id_articulo", nullable = true)
+    private Inventario inventario;
 
     private Integer cantidad; // 📌 Cantidad de producto vendido (si aplica)
 }
