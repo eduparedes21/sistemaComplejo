@@ -29,6 +29,7 @@ body {
     width: 100%;
     max-width: 800px; /* Se ajusta mejor en pantallas grandes */
     text-align: center;
+    position: relative;
 }
 
 /* 🏅 Títulos */
@@ -56,7 +57,7 @@ label {
 }
 
 /* ⚽ Inputs (Ahora los textos siempre serán visibles) */
-input[type="text"], input[type="password"], input[type="email"], 
+input[type="text"], input[type="password"], input[type="email"],
 input[type="date"], input[type="time"], input[type="number"], textarea {
     width: 100%;
     padding: 0.75rem;
@@ -84,10 +85,10 @@ input:focus, textarea:focus {
 button, .btn {
     background: linear-gradient(90deg, #28A745, #007BFF); /* Verde y Azul */
     color: #fff;
-    padding: 0.75rem;
+    padding: 0.5rem 1rem; /* Botón más pequeño */
     border: none;
     border-radius: 5px;
-    font-size: 1.1rem;
+    font-size: 1rem; /* Fuente más pequeña */
     cursor: pointer;
     transition: all 0.3s ease-in-out;
 }
@@ -95,7 +96,7 @@ button, .btn {
 /* Botones mejorados para que sean siempre visibles */
 button:hover, .btn:hover {
     background: linear-gradient(90deg, #007BFF, #28A745);
-    transform: scale(1.05);
+    transform: scale(1.00);
 }
 
 /* 🔄 Botón de Volver al Dashboard (Ahora siempre visible) */
@@ -167,4 +168,23 @@ button:hover, .btn:hover {
         width: 100%;
         margin-bottom: 0.5rem;
     }
+}
+
+/* 👤 Ajustes de rol en la parte inferior */
+.role-info {
+    position: absolute;
+    bottom: 20px; /* Aumentamos el margen inferior */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+    color: #FFC107;
+    font-weight: bold;
+}
+
+/* Ajuste para el botón de menú flotante */
+.toggle-btn {
+    position: fixed;
+    top: 50px; /* Aumentamos el margen superior */
+    left: 5px;
+    z-index: 1100;
 }

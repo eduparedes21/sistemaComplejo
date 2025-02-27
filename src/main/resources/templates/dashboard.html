@@ -43,7 +43,7 @@
             .toggle-btn {
                 position: fixed;
                 top: 15px;
-                left: 15px;
+                left: 5px;
                 z-index: 1100;
             }
             .user-info {
@@ -53,6 +53,16 @@
             }
             .user-info h5, .user-info p {
                 margin: 0;
+            }
+            /* 👤 Ajustes de rol en la parte inferior */
+            .role-info {
+                position: absolute;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 1rem;
+                color: #FFC107;
+                font-weight: bold;
             }
         </style>
     </head>
@@ -65,8 +75,9 @@
         <!-- Menú lateral -->
         <div class="sidebar" id="sidebar">
             <div class="user-info">
-                <h5 th:text="${usuario.nombre}">Nombre del Usuario</h5>
-                <p th:text="'Rol: ' + ${usuario.rol}">Rol: Administrador</p>
+                <h5 th:text="${usuario.nombre}">Nombre del usuario</h5>
+                <!-- Aquí eliminamos el prefijo "Rol:" -->
+                <p th:text="${usuario.rol}" class="role-info">Rol del usuario</p>
             </div>
             <ul class="nav flex-column mt-3">
                 <li class="nav-item">

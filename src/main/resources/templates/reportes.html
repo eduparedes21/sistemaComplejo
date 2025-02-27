@@ -6,6 +6,10 @@
         <link rel="stylesheet" href="/css/styles.css">
     </head>
     <body>
+        <!-- 📌 Mensaje flotante -->
+        <div id="mensajeFlotante" class="alert" style="position: fixed; top: 20px; right: 20px; display: none;">
+            <span id="mensajeTexto"></span>
+        </div>
         <div class="container mt-5">
             <h1>Reporte de Movimientos de Caja</h1>
 
@@ -59,14 +63,21 @@
 
                     try {
                         const response = await fetch(url, {headers: {'Accept': 'application/json'}});
-
+                        const mensajeFlotante = document.getElementById("mensajeFlotante");
+                        const mensajeTexto = document.getElementById("mensajeTexto");
                         if (!response.ok) {
                             throw new Error(`Error HTTP: ${response.status}`);
+                            mensajeTexto.textContent = "Error al obtener el reporte";
+                            mensajeFlotante.className = "alert alert-danger";
                         }
-
                         const data = await response.json();
                         console.log("✅ JSON recibido:", data);
-
+                        if (response.ok) {
+                            mensajeTexto.textContent = "Reporte generado con éxito.";
+                            mensajeFlotante.className = "alert alert-success";
+                        }
+                        mensajeFlotante.style.display = "block";
+                        setTimeout(() => mensajeFlotante.style.display = "none", 3000);
                         // Limpiar la tabla antes de agregar nuevos datos
                         tabla.innerHTML = "";
 
