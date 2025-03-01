@@ -23,6 +23,7 @@ public class ReservaService {
         }
         return reservaRepository.save(reserva);
     }
+
     public boolean hayConflictoDeHorario(LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
         List<Reserva> reservasEnFecha = reservaRepository.findByFechaReserva(fecha);
         for (Reserva r : reservasEnFecha) {
@@ -34,7 +35,7 @@ public class ReservaService {
     }
 
     public List<Reserva> listarReservas() {
-        return reservaRepository.findAll();
+        return reservaRepository.findAllWithCanchas();
     }
 
     public Optional<Reserva> obtenerReservaPorId(Integer id) {
@@ -46,12 +47,12 @@ public class ReservaService {
     }
 
     public boolean eliminarReserva(Integer id) {
-    Optional<Reserva> reserva = reservaRepository.findById(id);
-    if (!reserva.isPresent()) {
-        throw new ResourceNotFoundException("Reserva no encontrada con ID: " + id);
+        Optional<Reserva> reserva = reservaRepository.findById(id);
+        if (!reserva.isPresent()) {
+            throw new ResourceNotFoundException("Reserva no encontrada con ID: " + id);
+        }
+        reservaRepository.deleteById(id);
+        return true;
     }
-    reservaRepository.deleteById(id);
-    return true;
-}
 
 }

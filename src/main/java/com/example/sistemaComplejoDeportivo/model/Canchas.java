@@ -18,6 +18,16 @@ public class Canchas {
     private String nombre;
 
     @Column(nullable = false, length = 50)
+    private String tipo;
+    
+    @Column(nullable = false, length = 50)
     private String estado; // Disponible, Ocupada, Mantenimiento
 
+    @Column(nullable = false)
+    private Integer capacidad;
+
+    @Column(nullable = false)
+    private Double precioHora;
+
+    
 }

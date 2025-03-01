@@ -37,4 +37,9 @@ public class Reserva {
 
     @Column(name = "descripcion", length = 255)
     private String descripcion;
+                                            
+    @ManyToOne
+    @JoinColumn(name = "cancha_id", referencedColumnName = "id", nullable = false)
+    private Canchas cancha;
+
 }

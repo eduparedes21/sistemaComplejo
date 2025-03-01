@@ -31,6 +31,13 @@
                         <input type="time" id="horaFin" name="horaFin" class="form-control" required>
                     </div>
                     <div class="mb-3">
+                        <label for="cancha">Seleccionar Cancha:</label>
+                        <select id="cancha" name="cancha" class="form-control" required>
+                            <option value="">Seleccione una cancha</option>
+                            <option th:each="cancha : ${canchas}" th:value="${cancha.id}" th:text="${cancha.nombre}"></option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label for="descripcion">Descripción:</label>
                         <textarea id="descripcion" name="descripcion" class="form-control"></textarea>
                     </div>
@@ -56,6 +63,7 @@
                         <th>Fecha</th>
                         <th>Hora Inicio</th>
                         <th>Hora Fin</th>
+                        <th>Cancha</th>
                         <th>Monto</th>
                         <th>Descripción</th>
                         <th>Acciones</th>
@@ -67,6 +75,7 @@
                         <td th:text="${reserva.fechaReserva}"></td>
                         <td th:text="${reserva.horaInicio}"></td>
                         <td th:text="${reserva.horaFin}"></td>
+                        <td th:text="${reserva.cancha != null ? reserva.cancha.nombre : 'Sin cancha asignada'}"></td>
                         <td th:text="${reserva.montoTotal}"></td>
                         <td th:text="${reserva.descripcion}"></td>
                         <td>
@@ -79,5 +88,3 @@
         </div>
     </body>
 </html>
-
-
