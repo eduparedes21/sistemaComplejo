@@ -34,7 +34,7 @@ body {
 
 /* 🏅 Títulos */
 h2, h3 {
-    color: #FFC107; /* Amarillo vibrante */
+    color: #FFF; /* blanco*/
     font-size: 1.8rem;
     margin-bottom: 1rem;
     font-weight: bold;
@@ -52,7 +52,7 @@ form {
 label {
     font-weight: bold;
     font-size: 1rem;
-    color: #FFC107; /* Amarillo vibrante */
+    color: #FFF; /* Amarillo vibrante */
     text-align: left;
 }
 
@@ -64,22 +64,23 @@ input[type="date"], input[type="time"], input[type="number"], textarea {
     border: 2px solid #28A745; /* Verde césped */
     border-radius: 5px;
     font-size: 1rem;
-    background: rgba(255, 255, 255, 0.2); /* Más claro para mejorar visibilidad */
-    color: #fff;
+    background: rgba(255, 255, 255, 0.9); /* Fondo más opaco */
+    color: #000; /* Cambié el color del texto a negro */
     transition: border-color 0.3s, background 0.3s;
 }
 
 /* Mejor visibilidad al escribir en los campos */
 input::placeholder, textarea::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.7); /* Cambié el color del placeholder a gris oscuro */
 }
 
 input:focus, textarea:focus {
     border-color: #007BFF; /* Azul cancha */
     background: rgba(255, 255, 255, 0.3);
     outline: none;
-    color: #fff;
+    color: #000; /* Cambié el color del texto a negro al estar enfocado */
 }
+
 
 /* 🎽 Botones deportivos */
 button, .btn {
@@ -177,14 +178,14 @@ button:hover, .btn:hover {
     left: 50%;
     transform: translateX(-50%);
     font-size: 1rem;
-    color: #FFC107;
+    color: #fff;
     font-weight: bold;
 }
 
 /* Ajuste para el botón de menú flotante */
 .toggle-btn {
     position: fixed;
-    top: 50px; /* Aumentamos el margen superior */
+    top: 10px; /* Aumentamos el margen superior */
     left: 5px;
     z-index: 1100;
 }

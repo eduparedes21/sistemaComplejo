@@ -26,7 +26,7 @@
         <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-        <div class="card p-4">
+        <div class="container mt-4">
             <form th:action="@{/inventario/actualizar/{id}(id=${producto.idArticulo})}" method="post" th:object="${producto}">
                 <!-- Campo oculto para ID del producto -->
                 <input type="hidden" th:field="*{idArticulo}">

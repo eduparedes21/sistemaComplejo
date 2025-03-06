@@ -9,24 +9,14 @@
     <body>
         <div class="container mt-5">
             <h1 class="mb-4 text-center">Gestión de Proveedores</h1>
+            <!-- 📌 Mensajes de éxito o error -->
+            <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <!-- Botón Volver al Menú -->
             <div class="d-flex justify-content-start mb-3">
                 <a href="/dashboard" class="btn btn-secondary">Volver al Menú</a>
             </div>    
-            <!-- 📌 Sección de Mensajes -->
-            <div class="container mt-3">
-                <!-- Mensajes de éxito -->
-                <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
-                    <span th:text="${mensaje}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-
-                <!-- Mensajes de error -->
-                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <span th:text="${error}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            </div>
-
+                      
             <!-- Botón Agregar Proveedor -->
             <div class="d-flex justify-content-end mb-3">
                 <a href="/proveedores/nuevo" class="btn btn-success">Agregar Proveedor</a>

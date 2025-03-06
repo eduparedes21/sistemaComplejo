@@ -26,7 +26,7 @@
                 <a href="/proveedores" class="btn btn-secondary">Volver</a>
             </div>
 
-            <div class="card">
+            <div class="container mt-4">
                 <div class="card-body">
                     <form th:action="@{/proveedores/actualizar/{id}(id=${proveedor.idProveedor})}" th:object="${proveedor}" method="post">
                         <input type="hidden" th:field="*{idProveedor}" />
