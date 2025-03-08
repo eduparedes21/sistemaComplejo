@@ -14,7 +14,7 @@
             .sidebar {
                 height: 100vh;
                 width: 250px;
-                background-color: #343a40;
+                background-color: rgba(52, 58, 64, 0.9);
                 color: #fff;
                 position: fixed;
                 left: 0;
@@ -42,17 +42,18 @@
             }
             .toggle-btn {
                 position: fixed;
-                top: 15px;
-                left: 5px;
+                margin-right: 15px;
+                left: 8px;
                 z-index: 1100;
             }
-            .user-info {
+            .menuButton {
                 padding: 15px;
-                text-align: center;
-                border-bottom: 1px solid #495057;
             }
-            .user-info h5, .user-info p {
-                margin: 0;
+            .user-info {
+                padding: 20px;
+                text-align: center;
+                margin-left: 28px;  /* Espacio entre el botón y el nombre */
+                border-bottom: 1px solid #495057;
             }
             /* 👤 Ajustes de rol en la parte inferior */
             .role-info {
@@ -61,22 +62,22 @@
                 left: 50%;
                 transform: translateX(-50%);
                 font-size: 1rem;
-                color: #FFC107;
+                color: #FFF;
                 font-weight: bold;
             }
         </style>
     </head>
     <body>
-        <!-- Botón para replegar menú -->
-        <button class="btn btn-dark toggle-btn" id="toggleSidebar">
-            ☰
-        </button>
-
+        <div class="menuButton">
+                    <!-- Botón para replegar menú -->
+                    <button class="btn btn-dark toggle-btn" id="toggleSidebar">
+                        ☰
+                    </button>
+                </div>
         <!-- Menú lateral -->
         <div class="sidebar" id="sidebar">
             <div class="user-info">
-                <h5 th:text="${usuario.nombre}">Nombre del usuario</h5>
-                <!-- Aquí eliminamos el prefijo "Rol:" -->
+                <h5 th:text="${usuario.nombre}">Nombre</h5>
                 <p th:text="${usuario.rol}" class="role-info">Rol del usuario</p>
             </div>
             <ul class="nav flex-column mt-3">

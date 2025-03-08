@@ -14,9 +14,8 @@
             <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
             <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-            <!-- 📌 Botón para agregar usuario (visible solo para administradores) -->
-            <div sec:authorize="hasRole('ADMIN')">
-                <a href="/usuarios/nuevo" class="btn btn-success mb-3">Agregar Usuario</a>
+            <div class="mb-3 text-end">
+                <a href="/dashboard" class="btn btn-secondary">Volver al Menu</a>
             </div>
 
             <table class="table table-bordered">
@@ -29,9 +28,11 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <div class="mb-3 text-end">
-                    <a href="/dashboard" class="btn btn-secondary">Volver al Menu</a>
+                <!-- 📌 Botón para agregar usuario (visible solo para administradores) -->
+                <div sec:authorize="hasRole('ADMIN')">
+                    <a href="/usuarios/nuevo" class="btn btn-success mb-3">Agregar Usuario</a>
                 </div>
+
                 <tbody>
                     <tr th:each="usuario : ${usuarios}">
                         <td th:text="${usuario.idUsuario}"></td>
