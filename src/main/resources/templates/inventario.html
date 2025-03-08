@@ -33,7 +33,10 @@
                         <td th:text="${producto.nombre}"></td>
                         <td th:text="${producto.descripcion}"></td>
                         <td th:text="${producto.cantidadStock}"></td>
-                        <td th:text="${producto.precioUnitario}"></td>
+                        <td>
+                            <!-- Mostrar el precio como número simple -->
+                            <span th:text="${producto.precioUnitario}" class="precio-unitario"></span> Gs.
+                        </td>
                         <td th:text="${producto.categoria}"></td>
                         <td th:text="${producto.proveedor != null ? producto.proveedor.nombreEmpresa : 'Sin proveedor'}"></td>
                         <td>
@@ -46,5 +49,19 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+            // Formatear los precios con separador de miles
+            document.addEventListener("DOMContentLoaded", function () {
+                const precios = document.querySelectorAll('.precio-unitario');
+                precios.forEach(function (precio) {
+                    let precioValue = parseFloat(precio.innerText);
+                    if (!isNaN(precioValue)) {
+                        // Formatear el precio con coma como separador de miles
+                        precio.innerText = precioValue.toLocaleString('es-PY'); // 'es-PY' para Paraguay (Gs.)
+                    }
+                });
+            });
+        </script>
     </body>
 </html>
