@@ -1,88 +1,105 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Gestión de Canchas</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <div class="container mt-4">
-        <h2 class="mb-3">Gestión de Canchas</h2>
-        
-        <!-- 📌 Mensajes de éxito o error -->
-        <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
-        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-        
-        <script>
-            console.log("Cargando formulario de canchas...");
-        </script>
-        <a href="/dashboard" class="btn btn-secondary">Volver al Menú</a>
-        <!-- 🔹 Formulario para agregar cancha -->
-        <div class="container mt-3">
-            <h4>Agregar Nueva Cancha</h4>
-            <form action="/canchas/crear" method="post">
-                <div class="mb-3">
-                    <label for="nombre" class="form-label">Nombre de la Cancha</label>
-                    <input type="text" id="nombre" name="nombre" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="tipo" class="form-label">Tipo de Cancha</label>
-                    <input type="text" id="tipo" name="tipo" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="capacidad" class="form-label">Capacidad</label>
-                    <input type="number" id="capacidad" name="capacidad" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="precioHora" class="form-label">Precio por Hora</label>
-                    <input type="number" id="precioHora" name="precioHora" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="estado" class="form-label">Estado</label>
-                    <select id="estado" name="estado" class="form-select">
-                        <option value="Disponible">Disponible</option>
-                        <option value="Ocupada">Ocupada</option>
-                        <option value="Mantenimiento">Mantenimiento</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Agregar Cancha</button>
-            </form>
+    <head>
+        <meta charset="UTF-8">
+        <title>Gestión de Canchas</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/styles.css">
+    </head>
+    <body>
+        <div class="container mt-4">
+            <h2 class="mb-3">Gestión de Canchas</h2>
+
+            <!-- 📌 Mensajes de éxito o error -->
+            <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+            <script>
+                console.log("Cargando formulario de canchas...");
+            </script>
+            <a href="/dashboard" class="btn btn-secondary">Volver al Menú</a>
+            <!-- 🔹 Formulario para agregar cancha -->
+            <div class="container mt-3">
+                <h4>Agregar Nueva Cancha</h4>
+                <form action="/canchas/crear" method="post">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre de la Cancha</label>
+                        <input type="text" id="nombre" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipo" class="form-label">Tipo de Cancha</label>
+                        <input type="text" id="tipo" name="tipo" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="capacidad" class="form-label">Capacidad</label>
+                        <input type="number" id="capacidad" name="capacidad" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="precioHora" class="form-label">Precio por Hora</label>
+                        <input type="number" id="precioHora" name="precioHora" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select id="estado" name="estado" class="form-select">
+                            <option value="Disponible">Disponible</option>
+                            <option value="Ocupada">Ocupada</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar Cancha</button>
+                </form>
+            </div>
+
+            <script>
+                console.log("Cargando lista de canchas...");
+            </script>
+
+            <!-- 🔹 Lista de canchas existentes -->
+            <h3 class="mb-3">Lista de Canchas</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Capacidad</th>
+                        <th>Precio por Hora</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cancha : ${canchas}">
+                        <td th:text="${cancha.id}"></td>
+                        <td th:text="${cancha.nombre}"></td>
+                        <td th:text="${cancha.tipo}"></td>
+                        <td th:text="${cancha.capacidad}"></td>
+                        <td>
+                            <!-- Mostrar el precio sin formatear -->
+                            <span th:text="${cancha.precioHora}" class="precio"></span> Gs.
+                        </td>
+                        <td th:text="${cancha.estado}"></td>
+                        <td>
+                            <a th:href="@{/canchas/editar/{id}(id=${cancha.id})}" class="btn btn-warning btn-sm">Editar</a>
+                            <a th:href="@{/canchas/eliminar/{id}(id=${cancha.id})}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro?')">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        
+
         <script>
-            console.log("Cargando lista de canchas...");
+            // Formatear los precios con separador de miles
+            document.addEventListener("DOMContentLoaded", function () {
+                const precios = document.querySelectorAll('.precio');
+                precios.forEach(function (precio) {
+                    let precioValue = parseFloat(precio.innerText);
+                    if (!isNaN(precioValue)) {
+                        // Formatear el precio con coma como separador de miles
+                        precio.innerText = precioValue.toLocaleString('es-PY'); // 'es-PY' para Paraguay (Gs.)
+                    }
+                });
+            });
         </script>
-        
-        <!-- 🔹 Lista de canchas existentes -->
-        <h3 class="mb-3">Lista de Canchas</h3>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Tipo</th>
-                    <th>Capacidad</th>
-                    <th>Precio por Hora</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="cancha : ${canchas}">
-                    <td th:text="${cancha.id}"></td>
-                    <td th:text="${cancha.nombre}"></td>
-                    <td th:text="${cancha.tipo}"></td>
-                    <td th:text="${cancha.capacidad}"></td>
-                    <td th:text="${cancha.precioHora}"></td>
-                    <td th:text="${cancha.estado}"></td>
-                    <td>
-                        <a th:href="@{/canchas/editar/{id}(id=${cancha.id})}" class="btn btn-warning btn-sm">Editar</a>
-                        <a th:href="@{/canchas/eliminar/{id}(id=${cancha.id})}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro?')">Eliminar</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</body>
+    </body>
 </html>
