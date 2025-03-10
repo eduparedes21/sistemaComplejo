@@ -11,43 +11,43 @@
             const horaInicioInput = document.getElementById("horaInicio");
             const horaFinInput = document.getElementById("horaFin");
             const montoTotalInput = document.getElementById("montoTotal");
-            const mensajeError = document.createElement("div"); // Crear un div para el mensaje de error
+            const canchaSelect = document.getElementById("cancha");
+            const mensajeError = document.createElement("div"); // Mensaje de error
             mensajeError.classList.add("text-danger", "mt-2");
-            horaFinInput.parentNode.appendChild(mensajeError); // Insertar debajo del input
-
-            const tarifaPorHora = 50000; // Costo por hora en Gs.
+            horaFinInput.parentNode.appendChild(mensajeError); // Insertar mensaje debajo del input
 
             function actualizarLimiteHoraFin() {
                 if (horaInicioInput.value) {
-                    horaFinInput.min = horaInicioInput.value; // Establecer el mínimo en la hora de inicio
-                    horaFinInput.disabled = false; // Habilitar la selección de hora de fin
+                    horaFinInput.min = horaInicioInput.value; // La hora mínima de fin es la hora de inicio
+                    horaFinInput.disabled = false;
                 } else {
-                    horaFinInput.value = ""; // Limpiar la hora de fin si no hay inicio
-                    horaFinInput.disabled = true; // Deshabilitar la selección de hora de fin
+                    horaFinInput.value = "";
+                    horaFinInput.disabled = true;
                 }
-                calcularMonto(); // Volver a calcular el monto si se cambia la hora de inicio
+                calcularMonto(); // Recalcular monto al cambiar la hora de inicio
             }
 
             function calcularMonto() {
                 const horaInicio = horaInicioInput.value;
                 const horaFin = horaFinInput.value;
+                const canchaSeleccionada = canchaSelect.options[canchaSelect.selectedIndex];
+                const precioPorHora = canchaSeleccionada.getAttribute("data-precio");
 
-                if (horaInicio && horaFin) {
+                if (horaInicio && horaFin && precioPorHora) {
                     const inicio = new Date(`1970-01-01T${horaInicio}:00`);
                     const fin = new Date(`1970-01-01T${horaFin}:00`);
 
                     if (fin > inicio) {
-                        const diferenciaHoras = (fin - inicio) / (1000 * 60 * 60); // Convertir milisegundos a horas
-                        const montoTotal = Math.round(diferenciaHoras * tarifaPorHora);
+                        const diferenciaHoras = (fin - inicio) / (1000 * 60 * 60); // Convertir a horas
+                        const montoTotal = Math.round(diferenciaHoras * parseInt(precioPorHora));
 
-
+                        // 🔹 Formatear como moneda de Paraguay (Gs.)
                         const montoFormateado = montoTotal;
 
-                        // 🔹 Mostrar el monto en el input
                         montoTotalInput.value = montoFormateado;
                         mensajeError.textContent = ""; // Limpiar mensaje de error si es válido
                     } else {
-                        montoTotalInput.value = ""; // Si la hora fin es inválida, limpiar el monto
+                        montoTotalInput.value = "";
                         mensajeError.textContent = "⚠️ La hora de fin debe ser mayor que la de inicio.";
                     }
                 }
@@ -55,8 +55,10 @@
 
             horaInicioInput.addEventListener("change", actualizarLimiteHoraFin);
             horaFinInput.addEventListener("change", calcularMonto);
+            canchaSelect.addEventListener("change", calcularMonto); // Recalcular al cambiar de cancha
         });
     </script>
+
 
 
     <body>
@@ -87,8 +89,13 @@
                         <label for="cancha">Seleccionar Cancha:</label>
                         <select id="cancha" name="cancha" class="form-control" required>
                             <option value="">Seleccione una cancha</option>
-                            <option th:each="cancha : ${canchas}" th:value="${cancha.id}" th:text="${cancha.nombre}"></option>
+                            <option th:each="cancha : ${canchas}" 
+                                    th:value="${cancha.id}" 
+                                    th:text="${cancha.nombre}" 
+                                    th:attr="data-precio=${cancha.precioHora}">
+                            </option>
                         </select>
+
                     </div>
                     <div class="mb-3">
                         <label for="descripcion">Descripción:</label>
