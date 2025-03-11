@@ -47,8 +47,12 @@ public class CanchaController {
 
     @PostMapping("/actualizar/{id}")
     public String actualizarCancha(@PathVariable Integer id, @ModelAttribute Canchas cancha, RedirectAttributes redirectAttributes) {
-        canchaService.actualizarCancha(id, cancha);
-        redirectAttributes.addFlashAttribute("mensaje", "Canchas actualizada correctamente.");
+        try {
+            canchaService.actualizarCancha(id, cancha);
+            redirectAttributes.addFlashAttribute("mensaje", "Cancha actualizada correctamente.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al actualizar la cancha.");
+        }
         return "redirect:/canchas";
     }
 
