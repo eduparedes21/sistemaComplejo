@@ -37,7 +37,11 @@ public class ReservaService {
     public List<Reserva> listarReservas() {
         return reservaRepository.findAllWithCanchas();
     }
-
+    
+    public List<Reserva> listarReservasOrdenadas() {
+        return reservaRepository.findAllByOrderByFechaReservaDesc(); // Ordenar por fecha en orden descendente
+    }
+    
     public Optional<Reserva> obtenerReservaPorId(Integer id) {
         return reservaRepository.findById(id);
     }

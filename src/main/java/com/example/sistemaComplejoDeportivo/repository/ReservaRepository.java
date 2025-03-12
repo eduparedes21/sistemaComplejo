@@ -16,5 +16,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
     @Query("SELECT r FROM Reserva r LEFT JOIN FETCH r.cancha")
     List<Reserva> findAllWithCanchas();
-
+    
+    // Obtener reservas ordenadas por fecha de reserva (más recientes primero)
+    List<Reserva> findAllByOrderByFechaReservaDesc();
 }

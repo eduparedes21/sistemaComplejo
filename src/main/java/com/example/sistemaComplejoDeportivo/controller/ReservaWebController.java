@@ -32,13 +32,13 @@ public class ReservaWebController {
 
     @GetMapping
     public String listarReservas(Model model) {
-        List<Reserva> reservas = reservaService.listarReservas();
-        List<Canchas> canchas = canchaService.listarCanchas(); // Añadir las canchas al modelo
+        // Obtener las reservas ordenadas por fecha (más recientes primero)
+        List<Reserva> reservas = reservaService.listarReservasOrdenadas();
+        List<Canchas> canchas = canchaService.listarCanchas();
         model.addAttribute("reservas", reservas);
         model.addAttribute("canchas", canchas);
-        return "reservas";
+        return "reservas"; // Retorna la vista con la lista ordenada
     }
-    
 
     @GetMapping("/crear")
     public String mostrarFormularioReserva(Model model) {
