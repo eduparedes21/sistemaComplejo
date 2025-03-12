@@ -59,6 +59,39 @@
         });
     </script>
 
+    <script>
+        // Formatear los precios con separador de miles
+        document.addEventListener("DOMContentLoaded", function () {
+            const precios = document.querySelectorAll('.monto-total');
+            precios.forEach(function (precio) {
+                let precioValue = parseFloat(precio.innerText);
+                if (!isNaN(precioValue)) {
+                    // Formatear el precio con coma como separador de miles
+                    precio.innerText = precioValue.toLocaleString('es-PY'); // 'es-PY' para Paraguay (Gs.)
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const fechaElements = document.querySelectorAll('.fecha-reserva');
+
+            // Función para formatear la fecha en DD/MM/YYYY
+            function formatFecha(fecha) {
+                const fechaObj = new Date(fecha); // Convertir la fecha en un objeto Date
+                const dia = String(fechaObj.getDate()).padStart(2, '0'); // Obtener el día (con 2 dígitos)
+                const mes = String(fechaObj.getMonth() + 1).padStart(2, '0'); // Obtener el mes (con 2 dígitos)
+                const año = fechaObj.getFullYear(); // Obtener el año
+                return `${dia}/${mes}/${año}`; // Formato DD/MM/YYYY
+            }
+
+            // Iterar sobre cada celda de fecha y aplicar el formato
+            fechaElements.forEach(function (element) {
+                const fecha = element.innerText.trim(); // Obtener el valor de la fecha
+                element.textContent = formatFecha(fecha); // Actualizar el contenido con la fecha formateada
+            });
+        });
+    </script>
 
 
     <body>
@@ -132,11 +165,18 @@
                 <tbody>
                     <tr th:each="reserva : ${reservas}">
                         <td th:text="${reserva.idReserva}"></td>
-                        <td th:text="${reserva.fechaReserva}"></td>
+                        <td>
+                            <!-- Mostrar la fecha de reserva -->
+                            <span th:text="${reserva.fechaReserva}" class="fecha-reserva"></span>
+                        </td>
+
                         <td th:text="${reserva.horaInicio}"></td>
                         <td th:text="${reserva.horaFin}"></td>
                         <td th:text="${reserva.cancha != null ? reserva.cancha.nombre : 'Sin cancha asignada'}"></td>
-                        <td th:text="${reserva.montoTotal}"></td>
+                        <td>
+                            <!-- Mostrar el precio como número simple -->
+                            <span th:text="${reserva.montoTotal}" class="monto-total"></span> Gs.
+                        </td>
                         <td th:text="${reserva.descripcion}"></td>
                         <td>
                             <a th:href="@{/reservas/editar/{id}(id=${reserva.idReserva})}" class="btn btn-warning btn-sm">Editar</a>
