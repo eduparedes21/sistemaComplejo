@@ -33,6 +33,9 @@ public class Usuario {
     @Column(nullable = false, length = 20)
     private String rol; // Puede ser 'administrador' o 'personal'
 
+    @Column(nullable = false, length = 20)
+    private String estado; // Puede ser 'activo' o 'inactivo'
+
     //constructor vacio
     public Usuario() {
     }
@@ -44,12 +47,14 @@ public class Usuario {
      * @param email Correo electrónico del usuario
      * @param password Contraseña encriptada
      * @param rol Rol del usuario (administrador/personal)
+     * * @param estado Estado del usuario (activo/inactivo)
      */
-    public Usuario(String nombre, String email, String password, String rol) {
+    public Usuario(String nombre, String email, String password, String rol, String estado) {
         this.nombre = nombre;
         this.email = email;
         this.password = password;
         this.rol = rol;
+        this.estado = estado;
     }
 
     public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
