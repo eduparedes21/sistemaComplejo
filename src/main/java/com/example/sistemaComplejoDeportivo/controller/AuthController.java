@@ -24,9 +24,12 @@ public class AuthController {
     @GetMapping("/login")
     public String showLoginPage(@RequestParam(value = "error", required = false) String error, Model model) {
         if (error != null) {
-            model.addAttribute("error", "Credenciales incorrectas, intente nuevamente.");
+            model.addAttribute("error", "Credenciales incorrectas. Intente nuevamente.");
+            if ("inactivo".equals(error)) {
+                model.addAttribute("error", "Tu cuenta está inactiva. Contacta con el administrador.");
+            }
         }
-        return "login"; // Thymeleaf buscará login.html en /templates
+        return "login";
     }
 
     @PostMapping("/admin/registrarPersonal")

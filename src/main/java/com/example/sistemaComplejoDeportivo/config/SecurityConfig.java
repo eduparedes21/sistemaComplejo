@@ -8,6 +8,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -47,6 +48,13 @@ public class SecurityConfig {
                 .passwordParameter("password") // ← Define el campo de la contraseña correctamente
                 .defaultSuccessUrl("/dashboard", true) // Redirigir tras login exitoso
                 .failureUrl("/api/auth/login?error=true") // Redirigir tras login fallido
+                .failureHandler((request, response, exception) -> {
+                    if (exception.getMessage().contains("inactiva")) {
+                        response.sendRedirect("/api/auth/login?error=inactivo");
+                    } else {
+                        response.sendRedirect("/api/auth/login?error=true");
+                    }
+                })
                 .permitAll()
                 )
                 .logout(logout -> logout
@@ -81,11 +89,17 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> usuarioRepository.findByEmail(email)
-                .map(usuario -> User.builder()
-                .username(usuario.getEmail())
-                .password(usuario.getPassword())
-                .roles(usuario.getRol().equalsIgnoreCase("administrador") ? "ADMIN" : "USER")
-                .build())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .map(usuario -> {
+                    if (usuario.getEstado().equalsIgnoreCase("inactivo")) {
+                        throw new RuntimeException("Tu cuenta está inactiva. Contacta con el administrador.");
+                    }
+                    return User.builder()
+                            .username(usuario.getEmail())
+                            .password(usuario.getPassword())
+                            .roles(usuario.getRol().equalsIgnoreCase("administrador") ? "ADMIN" : "USER")
+                            .build();
+                })
+                .orElseThrow(() -> new RuntimeException("Correo o contraseña incorrectos."));
     }
+
 }
