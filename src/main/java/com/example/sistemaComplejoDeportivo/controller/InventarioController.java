@@ -22,7 +22,9 @@ public class InventarioController {
 
     @Autowired
     private ProveedorService proveedorService;
-
+    @Autowired
+    private UsuarioController usuarioController;
+    
     // 📌 Mostrar el inventario
     @GetMapping
     public String mostrarInventario(Model model) {
@@ -55,6 +57,12 @@ public class InventarioController {
     // 📌 Cargar formulario de edición
     @GetMapping("/editar/{id}")
     public String editarProducto(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
+        //Se verifica si el usuario no es Administrador
+        if (!usuarioController.esAdmin()) {
+            redirectAttributes.addFlashAttribute("error", "No tienes permisos para editar el producto.");
+            return "redirect:/inventario";
+        }
+        else{
         Optional<Inventario> producto = inventarioService.obtenerArticuloPorId(id);
         if (producto.isPresent()) {
             List<Proveedor> proveedores = proveedorService.obtenerTodosLosProveedores();
@@ -65,16 +73,24 @@ public class InventarioController {
             redirectAttributes.addFlashAttribute("error", "El producto no existe.");
             return "redirect:/inventario";
         }
+        }
     }
 
     // 📌 Actualizar producto
     @PostMapping("/actualizar/{id}")
     public String actualizarProducto(@PathVariable Integer id, @ModelAttribute Inventario producto, RedirectAttributes redirectAttributes) {
+        //Se verifica si el usuario no es Administrador
+        if (!usuarioController.esAdmin()) {
+            redirectAttributes.addFlashAttribute("error", "No tienes permisos para actualizar el producto.");
+            return "redirect:/inventario";
+        }
+        else {
         try {
             inventarioService.actualizarArticulo(id, producto);
             redirectAttributes.addFlashAttribute("mensaje", "Producto actualizado con éxito.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al actualizar el producto.");
+        }
         }
         return "redirect:/inventario";
     }
@@ -82,11 +98,18 @@ public class InventarioController {
     // 📌 Eliminar producto
     @GetMapping("/eliminar/{id}")
     public String eliminarProducto(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        //Se verifica si el usuario no es Administrador
+        if (!usuarioController.esAdmin()) {
+            redirectAttributes.addFlashAttribute("error", "No tienes permisos para eliminar el producto.");
+            return "redirect:/inventario";
+        }
+        else{
         try {
             inventarioService.eliminarArticulo(id);
             redirectAttributes.addFlashAttribute("mensaje", "Producto eliminado correctamente.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "No se pudo eliminar el producto.");
+        }
         }
         return "redirect:/inventario";
     }

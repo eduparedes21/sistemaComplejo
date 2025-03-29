@@ -9,6 +9,9 @@
     <body>
         <div class="container mt-5">
             <h1 class="mb-4 text-center">Gestión de Inventario</h1>
+            <!-- 📌 Mensajes de éxito o error -->
+            <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
             <a href="/dashboard" class="btn btn-secondary mb-3">Volver al Menú</a>
             <!-- Botón Agregar Producto -->
             <div class="d-flex justify-content-end mb-3">
@@ -40,8 +43,10 @@
                         <td th:text="${producto.categoria}"></td>
                         <td th:text="${producto.proveedor != null ? producto.proveedor.nombreEmpresa : 'Sin proveedor'}"></td>
                         <td>
-                            <a th:href="@{'/inventario/editar/' + ${producto.idArticulo}}" class="btn btn-primary btn-sm">Editar</a>
-                            <a th:href="@{'/inventario/eliminar/' + ${producto.idArticulo}}" class="btn btn-danger btn-sm">Eliminar</a>
+                            <div sec:authorize="hasRole('ADMIN')">
+                                <a th:href="@{'/inventario/editar/' + ${producto.idArticulo}}" class="btn btn-primary btn-sm">Editar</a>
+                                <a th:href="@{'/inventario/eliminar/' + ${producto.idArticulo}}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </div>
                         </td>
                     </tr>
                 </tbody>

@@ -144,9 +144,9 @@ public class UsuarioController {
         }
         return "redirect:/usuarios";
     }
-    // 📌 Método privado para verificar si el usuario autenticado es ADMINISTRADOR
+    // 📌 Método publico para verificar si el usuario autenticado es ADMINISTRADOR
 
-    private boolean esAdmin() {
+    public boolean esAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -170,24 +170,23 @@ public class UsuarioController {
     }
 
     @PostMapping("/cambiarEstado/{id}")
-    public String cambiarEstado(@PathVariable Long id) {
-        System.out.println("Método POST para cambiar estado de usuario con id: " + id); // Agregar log
+    public String cambiarEstado(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        if (!esAdmin()) {
+            redirectAttributes.addFlashAttribute("error", "No tienes permisos para cambiar el estado del usuario.");
+            return "redirect:/usuarios";
+        }
 
+        // Lógica para cambiar el estado del usuario
         Optional<Usuario> usuarioOptional = usuarioService.obtenerPorId(id);
         if (usuarioOptional.isPresent()) {
             Usuario usuario = usuarioOptional.get();
-            if ("activo".equals(usuario.getEstado())) {
-                usuario.setEstado("inactivo");
-            } else {
-                usuario.setEstado("activo");
-            }
-
+            usuario.setEstado(usuario.getEstado().equals("activo") ? "inactivo" : "activo");
             usuarioService.actualizarUsuario(usuario);
+            return "redirect:/usuarios";
         } else {
-            return "redirect:/usuarios?error=Usuario no encontrado";
+            redirectAttributes.addFlashAttribute("error", "Usuario no encontrado.");
+            return "redirect:/usuarios";
         }
-
-        return "redirect:/usuarios"; // Redirigir a la lista de usuarios
     }
 
 }
