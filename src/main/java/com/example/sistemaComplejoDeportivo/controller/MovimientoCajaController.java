@@ -32,6 +32,7 @@ public class MovimientoCajaController {
             @RequestParam String tipo,
             @RequestParam(required = false) Integer idArticulo,
             @RequestParam(required = false) Integer cantidad,
+            @RequestParam(required = false) Double monto, // Recibir monto para egresos
             Principal principal) {
 
         try {
@@ -44,6 +45,11 @@ public class MovimientoCajaController {
             movimiento.setTipo(TipoMovimiento.valueOf(tipo));
             movimiento.setUsuario(usuario);
             movimiento.setFechaHora(LocalDateTime.now());
+            
+            if (TipoMovimiento.valueOf(tipo) == TipoMovimiento.EGRESO) {
+            if(monto == null) throw new RuntimeException("El monto es necesario para los egresos");
+            movimiento.setMonto(monto); // Asignar el monto manualmente para egresos
+        } else if (idArticulo != null && cantidad != null) {
 
             if (idArticulo != null && cantidad != null) {
                 Inventario producto = inventarioService.obtenerArticuloPorId(idArticulo)
@@ -51,7 +57,7 @@ public class MovimientoCajaController {
                 movimiento.setInventario(producto);
                 movimiento.setCantidad(cantidad);
             }
-
+        }
             MovimientoCaja movimientoGuardado = movimientoCajaService.registrarMovimiento(movimiento);
 
             return ResponseEntity.ok("Movimiento registrado con éxito.");

@@ -28,10 +28,10 @@
                     <input type="text" id="descripcion" name="descripcion" class="form-control">
                 </div>
 
-                <!-- 📌 Monto calculado automáticamente -->
+                <!-- 📌 Monto calculado automáticamente o manual para egresos -->
                 <div class="mb-3">
-                    <label for="monto" class="form-label">Monto (Calculado automáticamente)</label>
-                    <input type="text" id="monto" class="form-control" disabled>
+                    <label for="monto" class="form-label">Monto</label>
+                    <input type="text" id="monto" name="monto" class="form-control">
                 </div>
 
                 <!-- 📌 Selección de producto si es un ingreso -->
@@ -66,7 +66,6 @@
                 const precioUnitario = parseFloat(productoSelect.options[productoSelect.selectedIndex].getAttribute("data-precio")) || 0;
                 const cantidad = parseInt(cantidadInput.value) || 0;
 
-                // Calcular el monto total y mostrarlo en pantalla
                 const montoTotal = precioUnitario * cantidad;
                 montoInput.value = montoTotal.toLocaleString("es-PY", {style: "currency", currency: "PYG"});
             }
@@ -75,10 +74,21 @@
                 const isIngreso = this.value === "INGRESO";
                 document.getElementById("productoSection").style.display = isIngreso ? "block" : "none";
                 document.getElementById("cantidadSection").style.display = isIngreso ? "block" : "none";
+                document.getElementById("monto").disabled = isIngreso;
+                if (isIngreso) {
+                    document.getElementById("monto").value = '';
+                    calcularMonto();
+                } else {
+                    document.getElementById("monto").value = '';
+                }
             });
 
             document.getElementById("idArticulo").addEventListener("change", calcularMonto);
             document.getElementById("formCaja").addEventListener("submit", async function (event) {
+                if (!document.getElementById("monto").disabled && !document.getElementById("monto").value) {
+                    event.preventDefault();
+                    alert('Por favor, introduce el monto para el egreso.');
+                }
                 event.preventDefault();
                 const formData = new FormData(this);
 
@@ -94,14 +104,14 @@
                     if (response.ok) {
                         mensajeTexto.textContent = "Movimiento registrado con éxito.";
                         mensajeFlotante.className = "alert alert-success";
-                        this.reset(); // Limpiar el formulario tras éxito
+                        this.reset();
                     } else {
                         mensajeTexto.textContent = "Error al registrar movimiento.";
                         mensajeFlotante.className = "alert alert-danger";
                     }
 
-                        mensajeFlotante.style.display = "block";
-                        setTimeout(() => mensajeFlotante.style.display = "none", 3000);
+                    mensajeFlotante.style.display = "block";
+                    setTimeout(() => mensajeFlotante.style.display = "none", 3000);
                 } catch (error) {
                     console.error("Error al registrar movimiento:", error);
                 }
