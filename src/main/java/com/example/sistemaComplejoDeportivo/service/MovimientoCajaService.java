@@ -26,7 +26,10 @@ public class MovimientoCajaService {
     public MovimientoCaja registrarMovimiento(MovimientoCaja movimientoCaja) throws Exception {
         movimientoCaja.setFechaHora(LocalDateTime.now());
 
-        // 📌 Si es un ingreso con producto, verificar y calcular el monto automáticamente
+        if (movimientoCaja.getMonto() < 0) {
+            throw new Exception("El monto no puede ser negativo.");
+        }
+
         if (movimientoCaja.getTipo() == TipoMovimiento.INGRESO && movimientoCaja.getInventario() != null) {
             Inventario producto = inventarioRepository.findById(movimientoCaja.getInventario().getIdArticulo())
                     .orElseThrow(() -> new Exception("Producto no encontrado en inventario"));
@@ -35,21 +38,15 @@ public class MovimientoCajaService {
                 throw new Exception("Stock insuficiente para la venta.");
             }
 
-            // 📌 Calcular monto automáticamente según precio unitario
             if (producto.getPrecioUnitario() == null) {
                 throw new Exception("El producto no tiene un precio unitario definido.");
             }
 
-            // Calcular monto automáticamente convirtiendo a BigDecimal
             BigDecimal montoTotal = producto.getPrecioUnitario()
                     .multiply(BigDecimal.valueOf(movimientoCaja.getCantidad()));
 
             movimientoCaja.setMonto(montoTotal.doubleValue());
-
-            // 📌 Asociar la categoría del producto automáticamente
-            movimientoCaja.setInventario(producto); // ✅ Asignar la relación con Inventario
-
-            // 📌 Restar la cantidad en stock
+            movimientoCaja.setInventario(producto);
             producto.setCantidadStock(producto.getCantidadStock() - movimientoCaja.getCantidad());
             inventarioRepository.save(producto);
         }
@@ -63,10 +60,9 @@ public class MovimientoCajaService {
 
     public double calcularBalance(LocalDateTime inicio, LocalDateTime fin) {
         List<MovimientoCaja> movimientos = obtenerMovimientosPorFecha(inicio, fin);
-        return movimientos.stream().mapToDouble(mov -> mov.getMonto()).sum();
+        return movimientos.stream().mapToDouble(MovimientoCaja::getMonto).sum();
     }
 
-    // 📌 Se restauran los métodos eliminados para ReporteCajaController
     public List<MovimientoCaja> obtenerMovimientosPorTipoYFecha(TipoMovimiento tipo, LocalDateTime inicio, LocalDateTime fin) {
         return movimientoCajaRepository.findByTipoAndFechaHoraBetween(tipo, inicio, fin);
     }
@@ -78,14 +74,13 @@ public class MovimientoCajaService {
     public List<MovimientoCaja> obtenerMovimientos() {
         List<MovimientoCaja> movimientos = movimientoCajaRepository.findAll();
         for (MovimientoCaja mov : movimientos) {
-            if (mov.getInventario() != null) { // ✅ Asegurar que `Inventario` no sea nulo
+            if (mov.getInventario() != null) {
                 System.out.println("Producto: " + mov.getInventario().getNombre());
-                System.out.println("Categoría: " + mov.getInventario().getCategoria()); // ✅ Corrección
+                System.out.println("Categoría: " + mov.getInventario().getCategoria());
             } else {
                 System.out.println("❌ Error: El producto en este movimiento es nulo.");
             }
         }
         return movimientos;
     }
-
 }
