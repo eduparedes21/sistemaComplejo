@@ -12,7 +12,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Controller
 @RequestMapping("/usuarios")
@@ -20,36 +19,25 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
-    private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public UsuarioController(UsuarioService usuarioService, PasswordEncoder passwordEncoder) {
-        this.usuarioService = usuarioService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     // 📌 Ver lista de usuarios (accesible para todos)
     @GetMapping
-    public String listarUsuarios(Model model
-    ) {
+    public String listarUsuarios(Model model) {
         List<Usuario> usuarios = usuarioService.listarUsuarios();
         model.addAttribute("usuarios", usuarios);
-        return "usuarios"; // Muestra la lista de usuarios en usuarios.html
+        return "usuarios";
     }
 
-    // 📌 Cargar formulario de nuevo usuario (SOLO ADMINISTRADOR)
     @GetMapping("/nuevo")
-    public String formularioNuevoUsuario(Model model, RedirectAttributes redirectAttributes
-    ) {
+    public String formularioNuevoUsuario(Model model, RedirectAttributes redirectAttributes) {
         if (!esAdmin()) {
             redirectAttributes.addFlashAttribute("error", "No tienes permisos para agregar usuarios.");
             return "redirect:/usuarios";
         }
         model.addAttribute("usuario", new Usuario());
-        return "crear-usuarios"; // Vista del formulario de nuevo usuario
+        return "crear-usuarios";
     }
 
-    // 📌 Crear un nuevo usuario (SOLO ADMINISTRADOR)
     @PostMapping("/crear")
     public String crearUsuario(@ModelAttribute Usuario usuario, RedirectAttributes redirectAttributes) {
         if (!esAdmin()) {
@@ -58,18 +46,14 @@ public class UsuarioController {
         }
 
         try {
-            // Verifica si el email ya está registrado
             Optional<Usuario> usuarioExistente = usuarioService.obtenerPorEmail(usuario.getEmail());
             if (usuarioExistente.isPresent()) {
                 redirectAttributes.addFlashAttribute("error", "El correo ya está registrado.");
                 return "redirect:/usuarios/nuevo";
             }
 
-            // Encripta la contraseña antes de guardar
-            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-            usuario.setEstado("activo");  // Asumiendo que quieres que los nuevos usuarios estén activos por defecto
-
-            Usuario nuevoUsuario = usuarioService.crearUsuario(usuario);
+            usuario.setEstado("activo");
+            usuarioService.crearUsuario(usuario);
             redirectAttributes.addFlashAttribute("mensaje", "Usuario agregado exitosamente.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al registrar el usuario: " + e.getMessage());
@@ -78,11 +62,8 @@ public class UsuarioController {
         return "redirect:/usuarios";
     }
 
-    // 📌 Cargar formulario de edición de usuario (SOLO ADMINISTRADOR)
     @GetMapping("/editar/{id}")
-    public String editarUsuario(@PathVariable Long id, Model model,
-            RedirectAttributes redirectAttributes
-    ) {
+    public String editarUsuario(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         if (!esAdmin()) {
             redirectAttributes.addFlashAttribute("error", "No tienes permisos para editar usuarios.");
             return "redirect:/usuarios";
@@ -91,17 +72,15 @@ public class UsuarioController {
         Optional<Usuario> usuario = usuarioService.obtenerPorId(id);
         if (usuario.isPresent()) {
             model.addAttribute("usuario", usuario.get());
-            return "editar-usuarios"; // Vista del formulario de edición
+            return "editar-usuarios";
         } else {
             redirectAttributes.addFlashAttribute("error", "Usuario no encontrado.");
             return "redirect:/usuarios";
         }
     }
 
-    // 📌 Actualizar usuario (SOLO ADMINISTRADOR)
     @PostMapping("/actualizar/{id}")
-    public String actualizarUsuario(@PathVariable Long id, @ModelAttribute Usuario usuario, RedirectAttributes redirectAttributes
-    ) {
+    public String actualizarUsuario(@PathVariable Long id, @ModelAttribute Usuario usuario, RedirectAttributes redirectAttributes) {
         if (!esAdmin()) {
             redirectAttributes.addFlashAttribute("error", "No tienes permisos para editar usuarios.");
             return "redirect:/usuarios";
@@ -114,23 +93,16 @@ public class UsuarioController {
         }
 
         Usuario usuarioDB = usuarioExistente.get();
-        usuarioDB.setNombre(usuario.getNombre());
-        usuarioDB.setEmail(usuario.getEmail());
-        usuarioDB.setRol(usuario.getRol());
+        usuario.setIdUsuario(id);
+        usuario.setEstado(usuarioDB.getEstado());
+        usuarioService.actualizarUsuario(usuario);
 
-        if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
-            usuarioDB.setPassword(passwordEncoder.encode(usuario.getPassword())); // Encriptamos la nueva contraseña
-        }
-
-        usuarioService.actualizarUsuario(usuarioDB);
         redirectAttributes.addFlashAttribute("mensaje", "Usuario actualizado con éxito.");
         return "redirect:/usuarios";
     }
 
-    // 📌 Eliminar usuario (SOLO ADMINISTRADOR)
     @GetMapping("/eliminar/{id}")
-    public String eliminarUsuario(@PathVariable Long id, RedirectAttributes redirectAttributes
-    ) {
+    public String eliminarUsuario(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         if (!esAdmin()) {
             redirectAttributes.addFlashAttribute("error", "No tienes permisos para eliminar usuarios.");
             return "redirect:/usuarios";
@@ -144,15 +116,12 @@ public class UsuarioController {
         }
         return "redirect:/usuarios";
     }
-    // 📌 Método publico para verificar si el usuario autenticado es ADMINISTRADOR
 
     public boolean esAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if (authentication == null || !authentication.isAuthenticated()) {
             return false;
         }
-
         return authentication.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
     }
@@ -162,10 +131,10 @@ public class UsuarioController {
         Optional<Usuario> usuarioOptional = usuarioService.obtenerPorId(id);
         if (usuarioOptional.isPresent()) {
             model.addAttribute("usuario", usuarioOptional.get());
-            return "cambiarEstado";  // Nombre del archivo HTML
+            return "cambiarEstado";
         } else {
             redirectAttributes.addFlashAttribute("error", "Usuario no encontrado.");
-            return "redirect:/usuarios";  // Si no se encuentra el usuario
+            return "redirect:/usuarios";
         }
     }
 
@@ -176,7 +145,6 @@ public class UsuarioController {
             return "redirect:/usuarios";
         }
 
-        // Lógica para cambiar el estado del usuario
         Optional<Usuario> usuarioOptional = usuarioService.obtenerPorId(id);
         if (usuarioOptional.isPresent()) {
             Usuario usuario = usuarioOptional.get();
@@ -188,5 +156,4 @@ public class UsuarioController {
             return "redirect:/usuarios";
         }
     }
-
-}
+} 
