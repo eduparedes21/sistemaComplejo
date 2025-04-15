@@ -1,52 +1,48 @@
 <!DOCTYPE html>
+
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>Reporte de Movimientos de Caja</title>
-        <link rel="stylesheet" href="/css/bootstrap.min.css">
-        <link rel="stylesheet" href="/css/styles.css">
-    </head>
-    <body>
-        <!-- 📌 Mensaje flotante -->
-        <div id="mensajeFlotante" class="alert" style="position: fixed; top: 20px; right: 20px; display: none;">
-            <span id="mensajeTexto"></span>
-        </div>
-        <div class="container mt-5">
-            <h1>Reporte de Movimientos de Caja</h1>
-
-            <div class="mb-3">
-                <label for="inicio">Fecha Inicio:</label>
-                <input type="datetime-local" id="inicio" class="form-control">
-            </div>
-
-            <div class="mb-3">
-                <label for="fin">Fecha Fin:</label>
-                <input type="datetime-local" id="fin" class="form-control">
-            </div>
-
-            <button id="btnGenerar" class="btn btn-primary">Generar Reporte</button>
-            <a href="/dashboard" class="btn btn-secondary">Volver al Menú</a>
-
-            <h2 class="mt-4">Resultados:</h2>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Fecha y Hora</th>
-                        <th>Producto</th>
-                        <th>Categoría</th>
-                        <th>Tipo</th>
-                        <th>Descripción</th>
-                        <th>Cantidad</th>
-                        <th>Monto</th>
-                        <th>Usuario</th> <!-- ✅ Nueva columna corregida -->
-                    </tr>
-                </thead>
-                <tbody id="tablaResultados">
-                    <!-- Aquí se insertarán los datos -->
-                </tbody>
-            </table>
-        </div>
-
-        <script>
+<head>
+<title>Reporte de Movimientos de Caja</title>
+<link href="/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="/css/styles.css" rel="stylesheet"/>
+</head>
+<body>
+<!-- 📌 Mensaje flotante -->
+<div class="alert" id="mensajeFlotante" style="position: fixed; top: 20px; right: 20px; display: none;">
+<span id="mensajeTexto"></span>
+</div>
+<div class="container mt-5">
+<h1>Reporte de Movimientos de Caja</h1>
+<div class="mb-3">
+<label for="inicio">Fecha Inicio:</label>
+<input class="form-control" id="inicio" type="datetime-local"/>
+</div>
+<div class="mb-3">
+<label for="fin">Fecha Fin:</label>
+<input class="form-control" id="fin" type="datetime-local"/>
+</div>
+<button class="btn btn-primary" id="btnGenerar">Generar Reporte</button>
+<a class="btn btn-secondary" href="/dashboard">Volver al Menú</a>
+<h2 class="mt-4">Resultados:</h2>
+<table class="table table-bordered">
+<thead>
+<tr>
+<th>Fecha y Hora</th>
+<th>Producto</th>
+<th>Categoría</th>
+<th>Tipo</th>
+<th>Descripción</th>
+<th>Cantidad</th>
+<th>Monto</th>
+<th>Usuario</th> <!-- ✅ Nueva columna corregida -->
+</tr>
+</thead>
+<tbody id="tablaResultados">
+<!-- Aquí se insertarán los datos -->
+</tbody>
+</table>
+</div>
+<script>
             document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("btnGenerar").addEventListener("click", async () => {
                     const inicio = document.getElementById("inicio").value;
@@ -122,5 +118,5 @@
                 }
             });
         </script>
-    </body>
+</body>
 </html>

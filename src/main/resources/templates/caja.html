@@ -1,63 +1,53 @@
 <!DOCTYPE html>
+
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>Módulo de Caja</title>
-        <link rel="stylesheet" href="/css/bootstrap.min.css">
-        <link rel="stylesheet" href="/css/styles.css">
-    </head>
-    <body>
-        <div class="container mt-5">
-            <h1>Módulo de Caja</h1>
-
-            <!-- 📌 Mensaje flotante -->
-            <div id="mensajeFlotante" class="alert" style="position: fixed; top: 20px; right: 20px; display: none;">
-                <span id="mensajeTexto"></span>
-            </div>
-
-            <form id="formCaja" action="/api/caja/registrar" method="post">
-                <div class="mb-3">
-                    <label for="tipo" class="form-label">Tipo</label>
-                    <select id="tipo" name="tipo" class="form-select">
-                        <option value="INGRESO">Ingreso</option>
-                        <option value="EGRESO">Egreso</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="descripcion" class="form-label">Descripción</label>
-                    <input type="text" id="descripcion" name="descripcion" class="form-control">
-                </div>
-
-                <!-- 📌 Monto calculado automáticamente o manual para egresos -->
-                <div class="mb-3">
-                    <label for="monto" class="form-label">Monto</label>
-                    <input type="text" id="monto" name="monto" class="form-control">
-                </div>
-
-                <!-- 📌 Selección de producto si es un ingreso -->
-                <div class="mb-3" id="productoSection">
-                    <label for="idArticulo" class="form-label">Producto (Solo para ingresos)</label>
-                    <select id="idArticulo" name="idArticulo" class="form-select">
-                        <option value="" data-precio="0">Seleccione un producto</option>
-                        <option th:each="producto : ${productos}" 
-                                th:value="${producto.idArticulo}" 
-                                th:data-precio="${producto.precioUnitario}" 
-                                th:text="${producto.nombre}">
-                        </option>
-                    </select>
-                </div>
-
-                <div class="mb-3" id="cantidadSection">
-                    <label for="cantidad" class="form-label">Cantidad (Solo para ingresos)</label>
-                    <input type="number" id="cantidad" name="cantidad" class="form-control" min="1" oninput="calcularMonto()">
-                </div>
-
-                <button type="submit" class="btn btn-primary">Registrar</button>
-                <a href="/dashboard" class="btn btn-secondary">Volver al Menú</a>
-            </form>
-        </div>
-
-        <script>
+<head>
+<title>Módulo de Caja</title>
+<link href="/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="/css/styles.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container mt-5">
+<h1>Módulo de Caja</h1>
+<!-- 📌 Mensaje flotante -->
+<div class="alert" id="mensajeFlotante" style="position: fixed; top: 20px; right: 20px; display: none;">
+<span id="mensajeTexto"></span>
+</div>
+<form action="/api/caja/registrar" id="formCaja" method="post"><input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+<div class="mb-3">
+<label class="form-label" for="tipo">Tipo</label>
+<select class="form-select" id="tipo" name="tipo">
+<option value="INGRESO">Ingreso</option>
+<option value="EGRESO">Egreso</option>
+</select>
+</div>
+<div class="mb-3">
+<label class="form-label" for="descripcion">Descripción</label>
+<input class="form-control" id="descripcion" name="descripcion" type="text"/>
+</div>
+<!-- 📌 Monto calculado automáticamente o manual para egresos -->
+<div class="mb-3">
+<label class="form-label" for="monto">Monto</label>
+<input class="form-control" id="monto" name="monto" type="text"/>
+</div>
+<!-- 📌 Selección de producto si es un ingreso -->
+<div class="mb-3" id="productoSection">
+<label class="form-label" for="idArticulo">Producto (Solo para ingresos)</label>
+<select class="form-select" id="idArticulo" name="idArticulo">
+<option data-precio="0" value="">Seleccione un producto</option>
+<option th:data-precio="${producto.precioUnitario}" th:each="producto : ${productos}" th:text="${producto.nombre}" th:value="${producto.idArticulo}">
+</option>
+</select>
+</div>
+<div class="mb-3" id="cantidadSection">
+<label class="form-label" for="cantidad">Cantidad (Solo para ingresos)</label>
+<input class="form-control" id="cantidad" min="1" name="cantidad" oninput="calcularMonto()" type="number"/>
+</div>
+<button class="btn btn-primary" type="submit">Registrar</button>
+<a class="btn btn-secondary" href="/dashboard">Volver al Menú</a>
+</form>
+</div>
+<script>
             function calcularMonto() {
                 const productoSelect = document.getElementById("idArticulo");
                 const cantidadInput = document.getElementById("cantidad");
@@ -117,5 +107,5 @@
                 }
             });
         </script>
-    </body>
+</body>
 </html>

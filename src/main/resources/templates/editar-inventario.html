@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Editar Producto</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/styles.css">
-    <style>
+<meta charset="utf-8"/>
+<title>Editar Producto</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="/css/styles.css" rel="stylesheet"/>
+<style>
         /* 📌 Añadir estilo para asegurar que el texto sea visible */
         input.form-control,
         textarea.form-control,
@@ -19,66 +20,53 @@
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="mb-4 text-center">Editar Producto</h1>
-
-        <!-- 📌 Mensajes de éxito o error -->
-        <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
-        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-
-        <div class="container mt-4">
-            <form th:action="@{/inventario/actualizar/{id}(id=${producto.idArticulo})}" method="post" th:object="${producto}">
-                <!-- Campo oculto para ID del producto -->
-                <input type="hidden" th:field="*{idArticulo}">
-
-                <div class="mb-3">
-                    <label for="nombre" class="form-label">Nombre:</label>
-                    <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="categoria" class="form-label">Categoría:</label>
-                    <input type="text" id="categoria" th:field="*{categoria}" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                    <label for="descripcion" class="form-label">Descripción:</label>
-                    <textarea id="descripcion" th:field="*{descripcion}" class="form-control"></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label for="cantidadStock" class="form-label">Cantidad:</label>
-                    <input type="number" id="cantidadStock" th:field="*{cantidadStock}" class="form-control" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="precioUnitario" class="form-label">Precio Unitario:</label>
-                    <input type="number" step="0.01" id="precioUnitario" th:field="*{precioUnitario}" class="form-control" required>
-                </div>
-
-                <!-- 📌 Selección de proveedor -->
-                <div class="mb-3">
-                    <label for="proveedor" class="form-label">Proveedor:</label>
-                    <select id="proveedor" th:field="*{proveedor.idProveedor}" class="form-control" required>
-                        <option value="">Seleccione un proveedor</option>
-                        <option th:each="prov : ${proveedores}" 
-                                th:value="${prov.idProveedor}" 
-                                th:text="${prov.nombreEmpresa}" 
-                                th:selected="${producto.proveedor != null and producto.proveedor.idProveedor == prov.idProveedor}">
-                        </option>
-                    </select>
-                </div>
-
-                <!-- 📌 Botones alineados -->
-                <div class="button-group">
-                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                    <a href="/inventario" class="btn btn-secondary">Volver</a>
-                    <a href="/dashboard" class="btn btn-secondary">Volver al Dashboard</a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="container mt-5">
+<h1 class="mb-4 text-center">Editar Producto</h1>
+<!-- 📌 Mensajes de éxito o error -->
+<div class="alert alert-success" th:if="${mensaje}" th:text="${mensaje}"></div>
+<div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+<div class="container mt-4">
+<form method="post" th:action="@{/inventario/actualizar/{id}(id=${producto.idArticulo})}" th:object="${producto}"><input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+<!-- Campo oculto para ID del producto -->
+<input th:field="*{idArticulo}" type="hidden"/>
+<div class="mb-3">
+<label class="form-label" for="nombre">Nombre:</label>
+<input class="form-control" id="nombre" required="" th:field="*{nombre}" type="text"/>
+</div>
+<div class="mb-3">
+<label class="form-label" for="categoria">Categoría:</label>
+<input class="form-control" id="categoria" th:field="*{categoria}" type="text"/>
+</div>
+<div class="mb-3">
+<label class="form-label" for="descripcion">Descripción:</label>
+<textarea class="form-control" id="descripcion" th:field="*{descripcion}"></textarea>
+</div>
+<div class="mb-3">
+<label class="form-label" for="cantidadStock">Cantidad:</label>
+<input class="form-control" id="cantidadStock" required="" th:field="*{cantidadStock}" type="number"/>
+</div>
+<div class="mb-3">
+<label class="form-label" for="precioUnitario">Precio Unitario:</label>
+<input class="form-control" id="precioUnitario" required="" step="0.01" th:field="*{precioUnitario}" type="number"/>
+</div>
+<!-- 📌 Selección de proveedor -->
+<div class="mb-3">
+<label class="form-label" for="proveedor">Proveedor:</label>
+<select class="form-control" id="proveedor" required="" th:field="*{proveedor.idProveedor}">
+<option value="">Seleccione un proveedor</option>
+<option th:each="prov : ${proveedores}" th:selected="${producto.proveedor != null and producto.proveedor.idProveedor == prov.idProveedor}" th:text="${prov.nombreEmpresa}" th:value="${prov.idProveedor}">
+</option>
+</select>
+</div>
+<!-- 📌 Botones alineados -->
+<div class="button-group">
+<button class="btn btn-primary" type="submit">Guardar Cambios</button>
+<a class="btn btn-secondary" href="/inventario">Volver</a>
+<a class="btn btn-secondary" href="/dashboard">Volver al Dashboard</a>
+</div>
+</form>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

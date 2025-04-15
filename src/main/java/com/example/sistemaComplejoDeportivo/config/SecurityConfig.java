@@ -14,13 +14,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
 
     private final UsuarioRepository usuarioRepository;
 
-    // Constructor para inyectar UsuarioRepository
     public SecurityConfig(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
     }
@@ -33,21 +34,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> {
+                })
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/css/**", "/js/**").permitAll() // Permitir login y recursos estáticos
+                .requestMatchers("/api/auth/login", "/css/**", "/js/**").permitAll()
                 .requestMatchers("/api/caja/**").authenticated()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/api/auth/**").permitAll() // APIs REST públicas
-                .requestMatchers("/proveedores/**").hasRole("ADMIN") // Proteger proveedores para ADMIN
-                .anyRequest().authenticated() // Requiere autenticación para el resto
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/proveedores/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
                 )
                 .formLogin(login -> login
-                .loginPage("/api/auth/login") // Ruta para mostrar el formulario de login
-                .usernameParameter("email") // ← Asegura que email se use como username
-                .passwordParameter("password") // ← Define el campo de la contraseña correctamente
-                .defaultSuccessUrl("/dashboard", true) // Redirigir tras login exitoso
-                .failureUrl("/api/auth/login?error=true") // Redirigir tras login fallido
+                .loginPage("/api/auth/login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/dashboard", true)
+                .failureUrl("/api/auth/login?error=true")
                 .failureHandler((request, response, exception) -> {
                     if (exception.getMessage().contains("inactiva")) {
                         response.sendRedirect("/api/auth/login?error=inactivo");
@@ -58,16 +60,27 @@ public class SecurityConfig {
                 .permitAll()
                 )
                 .logout(logout -> logout
-                .logoutUrl("/logout") // Ruta para cerrar sesión
-                .logoutSuccessUrl("/api/auth/login") // Redirigir tras logout
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                .logoutSuccessUrl("/api/auth/login?logout")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
                 )
                 .exceptionHandling(ex -> ex
-                .accessDeniedHandler(accessDeniedHandler()) // Manejar acceso denegado
+                .accessDeniedHandler(accessDeniedHandler())
                 )
                 .sessionManagement(session -> session
-                .maximumSessions(1) // Solo permitir una sesión por usuario
-                .maxSessionsPreventsLogin(false) // Permitir el nuevo login si se exceden las sesiones
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+                )
+                .headers(headers -> headers
+                .frameOptions(frame -> frame.sameOrigin())
+                .httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000))
+                .contentTypeOptions(contentType -> {
+                })
+                .referrerPolicy(referrer -> referrer.policy(ReferrerPolicy.SAME_ORIGIN))
                 );
+
         return http.build();
     }
 
@@ -101,5 +114,4 @@ public class SecurityConfig {
                 })
                 .orElseThrow(() -> new RuntimeException("Correo o contraseña incorrectos."));
     }
-
 }
