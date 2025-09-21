@@ -18,17 +18,17 @@ public class ReservaService {
     private ReservaRepository reservaRepository;
 
     public Reserva crearReserva(Reserva reserva) {
-        if (hayConflictoDeHorario(reserva.getFechaReserva(), reserva.getHoraInicio(), reserva.getHoraFin())) {
+        if (hayConflictoDeHorario(reserva.getFechaReserva(), reserva.getHoraInicio(), reserva.getHoraFin(),reserva.getCancha().getId().longValue())) {
             throw new RuntimeException("Ya existe una reserva en ese horario.");
         }
         return reservaRepository.save(reserva);
     }
 
-    public boolean hayConflictoDeHorario(LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
-        List<Reserva> reservasEnFecha = reservaRepository.findByFechaReserva(fecha);
-        for (Reserva r : reservasEnFecha) {
+    public boolean hayConflictoDeHorario(LocalDate fecha, LocalTime horaInicio, LocalTime horaFin, Long canchaId) {
+        List<Reserva> reservasEnFechaYCancha = reservaRepository.findByFechaReservaAndCancha_Id(fecha, canchaId);
+        for (Reserva r : reservasEnFechaYCancha) {
             if (!(horaFin.isBefore(r.getHoraInicio()) || horaInicio.isAfter(r.getHoraFin()))) {
-                return true; // Existe conflicto
+                return true; // Existe conflicto en esta cancha
             }
         }
         return false;
@@ -37,11 +37,11 @@ public class ReservaService {
     public List<Reserva> listarReservas() {
         return reservaRepository.findAllWithCanchas();
     }
-    
+
     public List<Reserva> listarReservasOrdenadas() {
         return reservaRepository.findAllByOrderByFechaReservaDesc(); // Ordenar por fecha en orden descendente
     }
-    
+
     public Optional<Reserva> obtenerReservaPorId(Integer id) {
         return reservaRepository.findById(id);
     }
@@ -58,5 +58,4 @@ public class ReservaService {
         reservaRepository.deleteById(id);
         return true;
     }
-
 }

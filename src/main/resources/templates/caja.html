@@ -52,6 +52,12 @@
                     <input type="number" id="cantidad" name="cantidad" class="form-control" min="1" oninput="calcularMonto()">
                 </div>
 
+                <!-- 📌 Campo de Categoría (solo para Egresos) -->
+                <div class="mb-3" id="categoriaSection" style="display: none;">
+                    <label for="categoria" class="form-label">Categoría (Solo para egresos)</label>
+                    <input type="text" id="categoria" name="categoria" class="form-control">
+                </div>
+
                 <button type="submit" class="btn btn-primary">Registrar</button>
                 <a href="/dashboard" class="btn btn-secondary">Volver al Menú</a>
             </form>
@@ -71,9 +77,10 @@
             }
 
             document.getElementById("tipo").addEventListener("change", function () {
-                const isIngreso = this.value === "INGRESO";
+                const isIngreso = this.value === "INGRESO";  // Verificar si es Ingreso
                 document.getElementById("productoSection").style.display = isIngreso ? "block" : "none";
                 document.getElementById("cantidadSection").style.display = isIngreso ? "block" : "none";
+                document.getElementById("categoriaSection").style.display = !isIngreso ? "block" : "none"; // Mostrar solo para Egresos
                 document.getElementById("monto").disabled = isIngreso;
                 if (isIngreso) {
                     document.getElementById("monto").value = '';
@@ -84,6 +91,7 @@
             });
 
             document.getElementById("idArticulo").addEventListener("change", calcularMonto);
+
             document.getElementById("formCaja").addEventListener("submit", async function (event) {
                 if (!document.getElementById("monto").disabled && !document.getElementById("monto").value) {
                     event.preventDefault();
@@ -119,3 +127,4 @@
         </script>
     </body>
 </html>
+

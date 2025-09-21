@@ -23,7 +23,8 @@
                 <input type="datetime-local" id="fin" class="form-control">
             </div>
 
-            <button id="btnGenerar" class="btn btn-primary">Generar Reporte</button>
+            <button id="btnGenerarIngreso" class="btn btn-primary">Generar Reporte de Ingresos</button>
+            <button id="btnGenerarEgreso" class="btn btn-secondary">Generar Reporte de Egresos</button>
             <a href="/dashboard" class="btn btn-secondary">Volver al Menú</a>
 
             <h2 class="mt-4">Resultados:</h2>
@@ -31,13 +32,10 @@
                 <thead>
                     <tr>
                         <th>Fecha y Hora</th>
-                        <th>Producto</th>
                         <th>Categoría</th>
                         <th>Tipo</th>
                         <th>Descripción</th>
-                        <th>Cantidad</th>
                         <th>Monto</th>
-                        <th>Usuario</th> <!-- ✅ Nueva columna corregida -->
                     </tr>
                 </thead>
                 <tbody id="tablaResultados">
@@ -48,18 +46,31 @@
 
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                document.getElementById("btnGenerar").addEventListener("click", async () => {
+                // Generar reporte de ingresos
+                document.getElementById("btnGenerarIngreso").addEventListener("click", async () => {
                     const inicio = document.getElementById("inicio").value;
                     const fin = document.getElementById("fin").value;
 
+                    let url = `/api/caja/reportes/movimientos?inicio=${encodeURIComponent(inicio)}&fin=${encodeURIComponent(fin)}&tipo=INGRESO`;
+                    generarReporte(url, 'INGRESO');
+                });
+
+                // Generar reporte de egresos
+                document.getElementById("btnGenerarEgreso").addEventListener("click", async () => {
+                    const inicio = document.getElementById("inicio").value;
+                    const fin = document.getElementById("fin").value;
+
+                    let url = `/api/caja/reportes/movimientos?inicio=${encodeURIComponent(inicio)}&fin=${encodeURIComponent(fin)}&tipo=EGRESO`;
+                    generarReporte(url, 'EGRESO');
+                });
+
+                async function generarReporte(url, tipo) {
                     const tabla = document.getElementById("tablaResultados");
                     if (!tabla) {
                         console.error("❌ ERROR: Elemento tablaResultados no encontrado en el DOM.");
                         alert("Error: No se encontró la tabla de resultados.");
                         return;
                     }
-
-                    let url = `/api/caja/reportes/movimientos?inicio=${encodeURIComponent(inicio)}&fin=${encodeURIComponent(fin)}`;
 
                     try {
                         const response = await fetch(url, {headers: {'Accept': 'application/json'}});
@@ -83,29 +94,45 @@
 
                         // Si no hay datos, mostrar un mensaje en la tabla
                         if (data.length === 0) {
-                            tabla.innerHTML = "<tr><td colspan='8' class='text-center'>No hay datos disponibles</td></tr>";
+                            tabla.innerHTML = "<tr><td colspan='5' class='text-center'>No hay datos disponibles</td></tr>";
                             return;
                         }
 
                         // Llenar la tabla con los datos recibidos
-                        tabla.innerHTML = data.map(mov => `
-                            <tr>
-                                <td>${formatearFecha(mov.fechaHora)}</td>
-                                <td>${mov.inventario ? mov.inventario.nombre : 'N/A'}</td>
-                                <td>${mov.inventario?.categoria || 'Sin categoría'}</td>
-                                <td>${mov.tipo}</td>
-                                <td>${mov.descripcion}</td>
-                                <td>${mov.cantidad ? mov.cantidad : '-'}</td>
-                                <td>${formatearMontoPYG(mov.monto)}</td>
-                                <td>${mov.usuario ? mov.usuario.nombre : 'No asignado'}</td> 
-                            </tr>
-                        `).join("");
+                        tabla.innerHTML = data.map(mov => {
+                            if (tipo === 'EGRESO') {
+                                // Si es un reporte de egreso, solo mostrar los campos de Fecha y Hora, Categoría, Tipo, Descripción y Monto
+                                return `
+                                    <tr>
+                                        <td>${formatearFecha(mov.fechaHora)}</td>
+                                        <td>${mov.inventario?.categoria || 'Sin categoría'}</td>
+                                        <td>EGRESO</td>
+                                        <td>${mov.descripcion}</td>
+                                        <td>${formatearMontoPYG(mov.monto)}</td>
+                                    </tr>
+                                `;
+                            } else {
+                                // Si es un reporte de ingreso, mostrar todos los campos
+                                return `
+                                    <tr>
+                                        <td>${formatearFecha(mov.fechaHora)}</td>
+                                        <td>${mov.inventario ? mov.inventario.nombre : 'N/A'}</td>
+                                        <td>${mov.inventario?.categoria || 'Sin categoría'}</td>
+                                        <td>INGRESO</td>
+                                        <td>${mov.descripcion}</td>
+                                        <td>${mov.cantidad ? mov.cantidad : '-'}</td>
+                                        <td>${formatearMontoPYG(mov.monto)}</td>
+                                        <td>${mov.usuario ? mov.usuario.nombre : 'No asignado'}</td>
+                                    </tr>
+                                `;
+                            }
+                        }).join("");
 
                     } catch (error) {
                         console.error("❌ ERROR al generar el reporte:", error);
                         alert("Error al generar el reporte. Revisa la consola para más detalles.");
                     }
-                });
+                }
 
                 // ✅ Función para formatear la fecha en "dd/MM/yyyy HH:mm:ss"
                 function formatearFecha(fechaISO) {
@@ -124,3 +151,4 @@
         </script>
     </body>
 </html>
+
