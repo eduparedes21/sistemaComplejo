@@ -113,4 +113,11 @@ public class InventarioController {
         }
         return "redirect:/inventario";
     }
+
+    // 📌 Endpoint REST para listar productos en formato JSON
+    @GetMapping("/api/listar")
+    @ResponseBody
+    public List<Inventario> listarProductosJson() {
+        return inventarioService.listarTodosLosArticulos();
+    }
 }

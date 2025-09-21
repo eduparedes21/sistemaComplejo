@@ -8,104 +8,122 @@
 </head>
 <body>
 <div class="container mt-5">
-<h1>Módulo de Caja</h1>
-<!-- 📌 Mensaje flotante -->
-<div class="alert" id="mensajeFlotante" style="position: fixed; top: 20px; right: 20px; display: none;">
-<span id="mensajeTexto"></span>
-</div>
-<form action="/api/caja/registrar" id="formCaja" method="post"><input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
-<div class="mb-3">
-<label class="form-label" for="tipo">Tipo</label>
-<select class="form-select" id="tipo" name="tipo">
-<option value="INGRESO">Ingreso</option>
-<option value="EGRESO">Egreso</option>
-</select>
-</div>
-<div class="mb-3">
-<label class="form-label" for="descripcion">Descripción</label>
-<input class="form-control" id="descripcion" name="descripcion" type="text"/>
-</div>
-<!-- 📌 Monto calculado automáticamente o manual para egresos -->
-<div class="mb-3">
-<label class="form-label" for="monto">Monto</label>
-<input class="form-control" id="monto" name="monto" type="text"/>
-</div>
-<!-- 📌 Selección de producto si es un ingreso -->
-<div class="mb-3" id="productoSection">
-<label class="form-label" for="idArticulo">Producto (Solo para ingresos)</label>
-<select class="form-select" id="idArticulo" name="idArticulo">
-<option data-precio="0" value="">Seleccione un producto</option>
-<option th:data-precio="${producto.precioUnitario}" th:each="producto : ${productos}" th:text="${producto.nombre}" th:value="${producto.idArticulo}">
-</option>
-</select>
-</div>
-<div class="mb-3" id="cantidadSection">
-<label class="form-label" for="cantidad">Cantidad (Solo para ingresos)</label>
-<input class="form-control" id="cantidad" min="1" name="cantidad" oninput="calcularMonto()" type="number"/>
-</div>
-<button class="btn btn-primary" type="submit">Registrar</button>
-<a class="btn btn-secondary" href="/dashboard">Volver al Menú</a>
-</form>
-</div>
-<script>
-            function calcularMonto() {
-                const productoSelect = document.getElementById("idArticulo");
-                const cantidadInput = document.getElementById("cantidad");
-                const montoInput = document.getElementById("monto");
+    <h1>Módulo de Caja</h1>
+    <!-- 📌 Mensaje flotante -->
+    <div class="alert" id="mensajeFlotante" style="position: fixed; top: 20px; right: 20px; display: none;">
+    <span id="mensajeTexto"></span>
+    </div>
 
-                const precioUnitario = parseFloat(productoSelect.options[productoSelect.selectedIndex].getAttribute("data-precio")) || 0;
-                const cantidad = parseInt(cantidadInput.value) || 0;
 
-                const montoTotal = precioUnitario * cantidad;
-                montoInput.value = montoTotal.toLocaleString("es-PY", {style: "currency", currency: "PYG"});
+    <form id="formCaja" onsubmit="event.preventDefault(); registrarMovimiento();">
+        <input type="hidden" id="_csrf" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <!-- Tipo -->
+        <div class="mb-3">
+            <label class="form-label" for="tipo">Tipo</label>
+            <select class="form-select" id="tipo" name="tipo" onchange="toggleCampos()">
+                <option value="INGRESO">Ingreso</option>
+                <option value="EGRESO">Egreso</option>
+            </select>
+        </div>
+
+        <!-- Descripción -->
+        <div class="mb-3">
+            <label class="form-label" for="descripcion">Descripción</label>
+            <input class="form-control" id="descripcion" name="descripcion" type="text" required />
+        </div>
+
+        <!-- Producto (solo ingresos) -->
+        <div class="mb-3" id="productoSection">
+            <label class="form-label" for="idArticulo">Producto</label>
+            <select class="form-select" id="idArticulo" name="idArticulo" onchange="mostrarMonto()">
+                <option value="">Seleccione un producto</option>
+                <option th:each="producto : ${productos}" 
+                        th:value="${producto.idArticulo}" 
+                        th:data-precio="${producto.precioUnitario}"
+                        th:text="${producto.nombre}"></option>        </select>
+        </div>
+
+        <!-- Cantidad -->
+        <div class="mb-3" id="cantidadSection">
+            <label class="form-label" for="cantidad">Cantidad</label>
+            <input class="form-control" id="cantidad" name="cantidad" type="number" min="1" oninput="mostrarMonto()" />
+        </div>
+
+        <!-- Monto estimado -->
+        <div class="mb-3">
+            <label class="form-label">Monto estimado</label>
+            <input class="form-control" id="montoVisual" type="text"/>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Registrar</button>
+        <a class="btn btn-secondary" href="/dashboard">Volver al Menú</a>
+    </form>
+
+    <script>
+        function toggleCampos() {
+            const tipo = document.getElementById("tipo").value;
+            document.getElementById("productoSection").style.display = tipo === "INGRESO" ? "block" : "none";
+            document.getElementById("cantidadSection").style.display = tipo === "INGRESO" ? "block" : "none";
+        }
+
+        function mostrarMonto() {
+            const producto = document.getElementById("idArticulo");
+            const cantidad = parseInt(document.getElementById("cantidad").value) || 0;
+            const precio = parseFloat(producto.options[producto.selectedIndex].getAttribute("data-precio")) || 0;
+            document.getElementById("montoVisual").value = (precio * cantidad).toLocaleString("es-PY", {style: "currency", currency: "PYG"});
+        }
+
+        async function registrarMovimiento() {
+            const descripcion = document.getElementById("descripcion").value;
+            const tipo = document.getElementById("tipo").value;
+            const csrfToken = document.getElementById("_csrf").value;
+
+            const dto = { descripcion, tipo };
+
+            if (tipo === "EGRESO") {
+                const monto = parseFloat(document.getElementById("montoVisual").value);
+                if (isNaN(monto) || monto <= 0) {
+                    alert("Debe ingresar un monto válido.");
+                    return;
+                }
+                dto.monto = monto;
+            } else {
+                const idArticulo = parseInt(document.getElementById("idArticulo").value);
+                const cantidad = parseInt(document.getElementById("cantidad").value);
+                const precio = parseFloat(document.getElementById("idArticulo").selectedOptions[0].getAttribute("data-precio"));
+
+                if (isNaN(idArticulo) || isNaN(cantidad) || cantidad <= 0 || isNaN(precio)) {
+                    alert("Debe seleccionar un producto y una cantidad válida.");
+                    return;
+                }
+
+                dto.idArticulo = idArticulo;
+                dto.cantidad = cantidad;
+                dto.monto = cantidad * precio;
             }
 
-            document.getElementById("tipo").addEventListener("change", function () {
-                const isIngreso = this.value === "INGRESO";
-                document.getElementById("productoSection").style.display = isIngreso ? "block" : "none";
-                document.getElementById("cantidadSection").style.display = isIngreso ? "block" : "none";
-                document.getElementById("monto").disabled = isIngreso;
-                if (isIngreso) {
-                    document.getElementById("monto").value = '';
-                    calcularMonto();
-                } else {
-                    document.getElementById("monto").value = '';
-                }
-            });
+            try {
+                const response = await fetch("/api/caja/registrar", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": csrfToken
+                    },
+                    body: JSON.stringify(dto)
+                });
 
-            document.getElementById("idArticulo").addEventListener("change", calcularMonto);
-            document.getElementById("formCaja").addEventListener("submit", async function (event) {
-                if (!document.getElementById("monto").disabled && !document.getElementById("monto").value) {
-                    event.preventDefault();
-                    alert('Por favor, introduce el monto para el egreso.');
-                }
-                event.preventDefault();
-                const formData = new FormData(this);
+                const resultado = await response.text();
+                alert(resultado);
+                document.getElementById("formCaja").reset();
+                document.getElementById("montoVisual").value = "";
+                toggleCampos();
+            } catch (error) {
+                alert("Error al registrar movimiento: " + error.message);
+            }
+        }
 
-                try {
-                    const response = await fetch(this.action, {
-                        method: "POST",
-                        body: formData
-                    });
-
-                    const mensajeFlotante = document.getElementById("mensajeFlotante");
-                    const mensajeTexto = document.getElementById("mensajeTexto");
-
-                    if (response.ok) {
-                        mensajeTexto.textContent = "Movimiento registrado con éxito.";
-                        mensajeFlotante.className = "alert alert-success";
-                        this.reset();
-                    } else {
-                        mensajeTexto.textContent = "Error al registrar movimiento.";
-                        mensajeFlotante.className = "alert alert-danger";
-                    }
-
-                    mensajeFlotante.style.display = "block";
-                    setTimeout(() => mensajeFlotante.style.display = "none", 3000);
-                } catch (error) {
-                    console.error("Error al registrar movimiento:", error);
-                }
-            });
-        </script>
+        window.onload = toggleCampos;
+    </script>
 </body>
 </html>

@@ -1,15 +1,17 @@
 package com.example.sistemaComplejoDeportivo.service;
 
+import com.example.sistemaComplejoDeportivo.dto.MovimientoDTO;
 import com.example.sistemaComplejoDeportivo.model.Inventario;
 import com.example.sistemaComplejoDeportivo.model.MovimientoCaja;
 import com.example.sistemaComplejoDeportivo.model.TipoMovimiento;
+import com.example.sistemaComplejoDeportivo.model.Usuario;
 import com.example.sistemaComplejoDeportivo.repository.InventarioRepository;
 import com.example.sistemaComplejoDeportivo.repository.MovimientoCajaRepository;
-import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,16 +25,63 @@ public class MovimientoCajaService {
     private InventarioRepository inventarioRepository;
 
     @Transactional
+    public MovimientoCaja crearMovimientoDesdeDTO(MovimientoDTO dto, Usuario usuario) throws Exception {
+        MovimientoCaja movimiento = new MovimientoCaja();
+        movimiento.setDescripcion(dto.getDescripcion());
+        movimiento.setTipo(TipoMovimiento.valueOf(dto.getTipo()));
+        movimiento.setUsuario(usuario);
+        movimiento.setFechaHora(LocalDateTime.now());
+
+        if (dto.getMonto() == null && dto.getIdArticulo() == null) {
+            throw new Exception("Debe proporcionar un monto o un artículo para el movimiento.");
+        }
+
+        if (dto.getMonto() != null && dto.getMonto() < 0) {
+            throw new Exception("El monto no puede ser negativo.");
+        }
+
+        if (movimiento.getTipo() == TipoMovimiento.EGRESO) {
+            if (dto.getMonto() == null) {
+                throw new Exception("El monto es obligatorio para los egresos.");
+            }
+            movimiento.setMonto(dto.getMonto());
+        } else if (dto.getIdArticulo() != null && dto.getCantidad() != null) {
+            Inventario producto = inventarioRepository.findById(dto.getIdArticulo())
+                    .orElseThrow(() -> new Exception("Producto no encontrado en inventario."));
+
+            if (producto.getCantidadStock() < dto.getCantidad()) {
+                throw new Exception("Stock insuficiente para la venta.");
+            }
+
+            if (producto.getPrecioUnitario() == null) {
+                throw new Exception("El producto no tiene un precio unitario definido.");
+            }
+
+            BigDecimal montoTotal = producto.getPrecioUnitario()
+                    .multiply(BigDecimal.valueOf(dto.getCantidad()));
+
+            movimiento.setMonto(montoTotal.doubleValue());
+            movimiento.setInventario(producto);
+            movimiento.setCantidad(dto.getCantidad());
+
+            producto.setCantidadStock(producto.getCantidadStock() - dto.getCantidad());
+            inventarioRepository.save(producto);
+        }
+
+        return movimientoCajaRepository.save(movimiento);
+    }
+
+    @Transactional
     public MovimientoCaja registrarMovimiento(MovimientoCaja movimientoCaja) throws Exception {
         movimientoCaja.setFechaHora(LocalDateTime.now());
 
-        if (movimientoCaja.getMonto() < 0) {
-            throw new Exception("El monto no puede ser negativo.");
+        if (movimientoCaja.getMonto() == null || movimientoCaja.getMonto() < 0) {
+            throw new Exception("El monto no puede ser nulo ni negativo.");
         }
 
         if (movimientoCaja.getTipo() == TipoMovimiento.INGRESO && movimientoCaja.getInventario() != null) {
             Inventario producto = inventarioRepository.findById(movimientoCaja.getInventario().getIdArticulo())
-                    .orElseThrow(() -> new Exception("Producto no encontrado en inventario"));
+                    .orElseThrow(() -> new Exception("Producto no encontrado en inventario."));
 
             if (producto.getCantidadStock() < movimientoCaja.getCantidad()) {
                 throw new Exception("Stock insuficiente para la venta.");
