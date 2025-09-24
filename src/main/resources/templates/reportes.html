@@ -22,6 +22,7 @@
 <input class="form-control" id="fin" type="datetime-local"/>
 </div>
 <button class="btn btn-primary" id="btnGenerar">Generar Reporte</button>
+<button class="btn btn-success" id="btnDescargar">Descargar CSV</button>
 <a class="btn btn-secondary" href="/dashboard">Volver al Menú</a>
 <h2 class="mt-4">Resultados:</h2>
 <table class="table table-bordered">
@@ -117,6 +118,20 @@
                     return new Intl.NumberFormat("es-PY").format(monto) + " Gs";
                 }
             });
+
+            // Event listener para el botón "Descargar CSV"
+        document.getElementById("btnDescargar").addEventListener("click", () => {
+            const inicio = document.getElementById("inicio").value;
+            const fin = document.getElementById("fin").value;
+
+            if (!inicio || !fin) {
+                alert("Por favor, selecciona un rango de fechas para descargar.");
+                return;
+            }
+
+            const url = `/api/caja/reportes/descargar?inicio=${encodeURIComponent(inicio)}&fin=${encodeURIComponent(fin)}`;
+            window.location.href = url;
+        });
         </script>
 </body>
 </html>

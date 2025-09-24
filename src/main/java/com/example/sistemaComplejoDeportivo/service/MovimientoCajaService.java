@@ -132,4 +132,8 @@ public class MovimientoCajaService {
         }
         return movimientos;
     }
+
+    public List<MovimientoCaja> obtenerMovimientosPorRangoDeFechas(LocalDateTime inicio, LocalDateTime fin) {
+    return movimientoCajaRepository.obtenerMovimientosConInventario(inicio, fin);
+    }
 }
