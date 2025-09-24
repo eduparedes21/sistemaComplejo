@@ -13,6 +13,9 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     List<Reserva> findByFechaReserva(LocalDate fecha);
 
     List<Reserva> findByUsuario_IdUsuario(Long idUsuario);
+    
+    List<Reserva> findByFechaReservaAndCancha_Id(LocalDate fecha, Long canchaId);
+
 
     @Query("SELECT r FROM Reserva r LEFT JOIN FETCH r.cancha")
     List<Reserva> findAllWithCanchas();

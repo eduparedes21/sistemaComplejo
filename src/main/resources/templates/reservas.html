@@ -79,7 +79,7 @@
             // Función para formatear la fecha en DD/MM/YYYY
             function formatFecha(fecha) {
                 const fechaObj = new Date(fecha); // Convertir la fecha en un objeto Date
-                const dia = String(fechaObj.getDate()).padStart(2, '0'); // Obtener el día (con 2 dígitos)
+                const dia = String(fechaObj.getDate() + 1).padStart(2, '0'); // Obtener el día (con 2 dígitos)
                 const mes = String(fechaObj.getMonth() + 1).padStart(2, '0'); // Obtener el mes (con 2 dígitos)
                 const año = fechaObj.getFullYear(); // Obtener el año
                 return `${dia}/${mes}/${año}`; // Formato DD/MM/YYYY
