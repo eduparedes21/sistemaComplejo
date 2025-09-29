@@ -13,10 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
 public class MovimientoCajaService {
+
+    //Configura la zona horaria de Paraguay para registrar movimientos
+    private static final ZoneId ZONA_PARAGUAY = ZoneId.of("America/Argentina/Buenos_Aires");
 
     @Autowired
     private MovimientoCajaRepository movimientoCajaRepository;
@@ -30,7 +35,7 @@ public class MovimientoCajaService {
         movimiento.setDescripcion(dto.getDescripcion());
         movimiento.setTipo(TipoMovimiento.valueOf(dto.getTipo()));
         movimiento.setUsuario(usuario);
-        movimiento.setFechaHora(LocalDateTime.now());
+        movimiento.setFechaHora(ZonedDateTime.now(ZONA_PARAGUAY).toLocalDateTime());
 
         if (dto.getMonto() == null && dto.getIdArticulo() == null) {
             throw new Exception("Debe proporcionar un monto o un artículo para el movimiento.");
@@ -73,7 +78,7 @@ public class MovimientoCajaService {
 
     @Transactional
     public MovimientoCaja registrarMovimiento(MovimientoCaja movimientoCaja) throws Exception {
-        movimientoCaja.setFechaHora(LocalDateTime.now());
+        movimientoCaja.setFechaHora(ZonedDateTime.now(ZONA_PARAGUAY).toLocalDateTime());
 
         if (movimientoCaja.getMonto() == null || movimientoCaja.getMonto() < 0) {
             throw new Exception("El monto no puede ser nulo ni negativo.");
@@ -134,6 +139,6 @@ public class MovimientoCajaService {
     }
 
     public List<MovimientoCaja> obtenerMovimientosPorRangoDeFechas(LocalDateTime inicio, LocalDateTime fin) {
-    return movimientoCajaRepository.obtenerMovimientosConInventario(inicio, fin);
+        return movimientoCajaRepository.obtenerMovimientosConInventario(inicio, fin);
     }
 }
