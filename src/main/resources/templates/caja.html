@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <title>Módulo de Caja</title>
@@ -9,11 +8,9 @@
 <body>
 <div class="container mt-5">
     <h1>Módulo de Caja</h1>
-    <!-- 📌 Mensaje flotante -->
-    <div class="alert" id="mensajeFlotante" style="position: fixed; top: 20px; right: 20px; display: none;">
-    <span id="mensajeTexto"></span>
-    </div>
 
+    <!-- 📌 Contenedor para mensajes -->
+    <div id="mensajeContainer"></div>
 
     <form id="formCaja" onsubmit="event.preventDefault(); registrarMovimiento();">
         <input type="hidden" id="_csrf" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -41,7 +38,8 @@
                 <option th:each="producto : ${productos}" 
                         th:value="${producto.idArticulo}" 
                         th:data-precio="${producto.precioUnitario}"
-                        th:text="${producto.nombre}"></option>        </select>
+                        th:text="${producto.nombre}"></option>
+            </select>
         </div>
 
         <!-- Cantidad -->
@@ -59,71 +57,84 @@
         <button class="btn btn-primary" type="submit">Registrar</button>
         <a class="btn btn-secondary" href="/dashboard">Volver al Menú</a>
     </form>
+</div>
 
-    <script>
-        function toggleCampos() {
-            const tipo = document.getElementById("tipo").value;
-            document.getElementById("productoSection").style.display = tipo === "INGRESO" ? "block" : "none";
-            document.getElementById("cantidadSection").style.display = tipo === "INGRESO" ? "block" : "none";
-        }
+<script>
+    function toggleCampos() {
+        const tipo = document.getElementById("tipo").value;
+        document.getElementById("productoSection").style.display = tipo === "INGRESO" ? "block" : "none";
+        document.getElementById("cantidadSection").style.display = tipo === "INGRESO" ? "block" : "none";
+    }
 
-        function mostrarMonto() {
-            const producto = document.getElementById("idArticulo");
-            const cantidad = parseInt(document.getElementById("cantidad").value) || 0;
-            const precio = parseFloat(producto.options[producto.selectedIndex].getAttribute("data-precio")) || 0;
-            document.getElementById("montoVisual").value = (precio * cantidad).toLocaleString("es-PY", {style: "currency", currency: "PYG"});
-        }
+    function mostrarMonto() {
+        const producto = document.getElementById("idArticulo");
+        const cantidad = parseInt(document.getElementById("cantidad").value) || 0;
+        const precio = parseFloat(producto.options[producto.selectedIndex]?.getAttribute("data-precio")) || 0;
+        document.getElementById("montoVisual").value = (precio * cantidad).toLocaleString("es-PY", {style: "currency", currency: "PYG"});
+    }
 
-        async function registrarMovimiento() {
-            const descripcion = document.getElementById("descripcion").value;
-            const tipo = document.getElementById("tipo").value;
-            const csrfToken = document.getElementById("_csrf").value;
+    function mostrarMensaje(mensaje, tipo = "success") {
+        const container = document.getElementById("mensajeContainer");
+        container.innerHTML = `
+            <div class="alert alert-${tipo} alert-dismissible fade show mt-3" role="alert">
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        `;
+    }
 
-            const dto = { descripcion, tipo };
+    async function registrarMovimiento() {
+        const descripcion = document.getElementById("descripcion").value;
+        const tipo = document.getElementById("tipo").value;
+        const csrfToken = document.getElementById("_csrf").value;
 
-            if (tipo === "EGRESO") {
-                const monto = parseFloat(document.getElementById("montoVisual").value);
-                if (isNaN(monto) || monto <= 0) {
-                    alert("Debe ingresar un monto válido.");
-                    return;
-                }
-                dto.monto = monto;
-            } else {
-                const idArticulo = parseInt(document.getElementById("idArticulo").value);
-                const cantidad = parseInt(document.getElementById("cantidad").value);
-                const precio = parseFloat(document.getElementById("idArticulo").selectedOptions[0].getAttribute("data-precio"));
+        const dto = { descripcion, tipo };
 
-                if (isNaN(idArticulo) || isNaN(cantidad) || cantidad <= 0 || isNaN(precio)) {
-                    alert("Debe seleccionar un producto y una cantidad válida.");
-                    return;
-                }
+        if (tipo === "EGRESO") {
+            const monto = parseFloat(document.getElementById("montoVisual").value.replace(/[^\d]/g, ""));
+            if (isNaN(monto) || monto <= 0) {
+                mostrarMensaje("⚠️ Debe ingresar un monto válido.", "danger");
+                return;
+            }
+            dto.monto = monto;
+        } else {
+            const idArticulo = parseInt(document.getElementById("idArticulo").value);
+            const cantidad = parseInt(document.getElementById("cantidad").value);
+            const precio = parseFloat(document.getElementById("idArticulo").selectedOptions[0]?.getAttribute("data-precio"));
 
-                dto.idArticulo = idArticulo;
-                dto.cantidad = cantidad;
-                dto.monto = cantidad * precio;
+            if (isNaN(idArticulo) || isNaN(cantidad) || cantidad <= 0 || isNaN(precio)) {
+                mostrarMensaje("⚠️ Debe seleccionar un producto y una cantidad válida.", "danger");
+                return;
             }
 
-            try {
-                const response = await fetch("/api/caja/registrar", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": csrfToken
-                    },
-                    body: JSON.stringify(dto)
-                });
-
-                const resultado = await response.text();
-                alert(resultado);
-                document.getElementById("formCaja").reset();
-                document.getElementById("montoVisual").value = "";
-                toggleCampos();
-            } catch (error) {
-                alert("Error al registrar movimiento: " + error.message);
-            }
+            dto.idArticulo = idArticulo;
+            dto.cantidad = cantidad;
+            dto.monto = cantidad * precio;
         }
 
-        window.onload = toggleCampos;
-    </script>
+        try {
+            const response = await fetch("/api/caja/registrar", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken
+                },
+                body: JSON.stringify(dto)
+            });
+
+            const resultado = await response.text();
+            mostrarMensaje(resultado, "success");
+
+            document.getElementById("formCaja").reset();
+            document.getElementById("montoVisual").value = "";
+            toggleCampos();
+        } catch (error) {
+            mostrarMensaje("❌ Error al registrar movimiento: " + error.message, "danger");
+        }
+    }
+
+    window.onload = toggleCampos;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
