@@ -34,6 +34,12 @@ public class MovimientoCajaController {
             Usuario usuario = usuarioService.obtenerPorEmail(principal.getName())
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+            // Validar permisos para EGRESO
+            if (dto.getTipo().equalsIgnoreCase("EGRESO") && !usuario.getRol().equalsIgnoreCase("administrador")) {
+                // Solo ADMIN puede registrar egresos
+                return ResponseEntity.status(403).body("Acceso denegado: solo los administradores pueden registrar egresos.");
+            }
+
             MovimientoCaja movimiento = movimientoCajaService.crearMovimientoDesdeDTO(dto, usuario);
             return ResponseEntity.ok("Movimiento registrado con éxito.");
         } catch (Exception e) {

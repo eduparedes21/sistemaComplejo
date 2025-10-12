@@ -93,7 +93,11 @@
         if (tipo === "EGRESO") {
             const monto = parseFloat(document.getElementById("montoVisual").value.replace(/[^\d]/g, ""));
             if (isNaN(monto) || monto <= 0) {
-                mostrarMensaje("⚠️ Debe ingresar un monto válido.", "danger");
+                document.getElementById("mensajeContainer").innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        ⚠️ Debe ingresar un monto válido.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>`;
                 return;
             }
             dto.monto = monto;
@@ -103,7 +107,11 @@
             const precio = parseFloat(document.getElementById("idArticulo").selectedOptions[0]?.getAttribute("data-precio"));
 
             if (isNaN(idArticulo) || isNaN(cantidad) || cantidad <= 0 || isNaN(precio)) {
-                mostrarMensaje("⚠️ Debe seleccionar un producto y una cantidad válida.", "danger");
+                document.getElementById("mensajeContainer").innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        ⚠️ Debe seleccionar un producto y una cantidad válida.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>`;
                 return;
             }
 
@@ -123,13 +131,29 @@
             });
 
             const resultado = await response.text();
-            mostrarMensaje(resultado, "success");
 
-            document.getElementById("formCaja").reset();
-            document.getElementById("montoVisual").value = "";
-            toggleCampos();
+            if (response.ok) {
+                document.getElementById("mensajeContainer").innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                        ${resultado}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>`;
+                document.getElementById("formCaja").reset();
+                document.getElementById("montoVisual").value = "";
+                toggleCampos();
+            } else {
+                document.getElementById("mensajeContainer").innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        ${resultado}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>`;
+            }
         } catch (error) {
-            mostrarMensaje("❌ Error al registrar movimiento: " + error.message, "danger");
+            document.getElementById("mensajeContainer").innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    ❌ Error al registrar movimiento: ${error.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>`;
         }
     }
 
